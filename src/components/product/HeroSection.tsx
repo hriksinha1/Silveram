@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useRef } from "react";
-import { ArrowRight, ShieldCheck } from "lucide-react";
+import React, { useRef, useState } from "react";
+import { ArrowRight, ShieldCheck, Sparkles, Compass, CheckCircle } from "lucide-react";
 import { PublicProductDto } from "@/types/products";
 import { formatRupeesDisplay } from "@/lib/format";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
+import { FrameViewer3D, InscriptionData, CRAFTED_MESSAGES } from "./FrameViewer3D";
 
 interface HeroSectionProps {
   product?: PublicProductDto;
@@ -14,19 +15,26 @@ interface HeroSectionProps {
 
 export function HeroSection({ product, onAddToCart }: HeroSectionProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const subtitleRef = useRef<HTMLParagraphElement>(null);
   const specsRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
 
+  const [currentInscription, setCurrentInscription] = useState<InscriptionData>({
+    recipient: CRAFTED_MESSAGES[0].recipient,
+    message: CRAFTED_MESSAGES[0].message,
+    date: CRAFTED_MESSAGES[0].date,
+    themeTitle: CRAFTED_MESSAGES[0].title,
+  });
+
+  const [addedToast, setAddedToast] = useState(false);
+
   const priceDisplay = product ? formatRupeesDisplay(product.priceRupees) : "₹1,200.00";
 
-  // GSAP Entrance Animations & Interactive Tilt
+  // GSAP Entrance Animations
   useGSAP(
     () => {
-      // 1. Staggered Entrance
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
       tl.fromTo(
@@ -57,162 +65,169 @@ export function HeroSection({ product, onAddToCart }: HeroSectionProps) {
           { opacity: 0, y: 20 },
           { opacity: 1, y: 0, duration: 0.8 },
           "-=0.6"
-        )
-        .fromTo(
-          imageRef.current,
-          { opacity: 0, scale: 0.94, y: 30 },
-          { opacity: 1, scale: 1, y: 0, duration: 1.2, ease: "power2.out" },
-          "-=1.0"
         );
-
-      // 2. Subtle Floating Animation on Image
-      gsap.to(imageRef.current, {
-        y: -10,
-        duration: 3,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-      });
     },
     { scope: containerRef }
   );
 
-  // Interactive 3D Perspective Tilt on Mouse Movement
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!imageRef.current) return;
-    const { clientX, clientY, currentTarget } = e;
-    const { left, top, width, height } = currentTarget.getBoundingClientRect();
-    const x = (clientX - left) / width - 0.5;
-    const y = (clientY - top) / height - 0.5;
-
-    gsap.to(imageRef.current, {
-      rotationY: x * 10,
-      rotationX: -y * 10,
-      transformPerspective: 1000,
-      duration: 0.5,
-      ease: "power2.out",
-    });
-  };
-
-  const handleMouseLeave = () => {
-    if (!imageRef.current) return;
-    gsap.to(imageRef.current, {
-      rotationY: 0,
-      rotationX: 0,
-      duration: 0.8,
-      ease: "power2.out",
-    });
+  const handleOrderClick = () => {
+    onAddToCart?.();
+    setAddedToast(true);
+    setTimeout(() => setAddedToast(false), 4000);
   };
 
   return (
     <section
       id="hero"
       ref={containerRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className="relative w-full bg-midnight text-porcelain overflow-hidden py-16 sm:py-24 lg:py-32 border-b border-silver/10"
+      className="relative w-full bg-midnight text-porcelain overflow-hidden py-16 sm:py-24 lg:py-28 border-b border-silver/15"
     >
+      {/* ======================================================== */}
+      {/* GEOMETRICAL ARCHITECTURAL DRAFTING GRID BACKDROP         */}
+      {/* ======================================================== */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-40"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px)
+          `,
+          backgroundSize: "80px 80px",
+        }}
+      />
+
       {/* Ambient Lighting Orbs */}
-      <div className="absolute top-1/4 right-1/4 w-[450px] h-[450px] rounded-full bg-cobalt/15 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-10 left-10 w-[350px] h-[350px] rounded-full bg-silver/10 blur-[100px] pointer-events-none" />
+      <div className="absolute top-1/4 right-1/4 w-[480px] h-[480px] rounded-full bg-cobalt/20 blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-10 left-10 w-[380px] h-[380px] rounded-full bg-silver/10 blur-[110px] pointer-events-none" />
+
+      {/* Geometrical Architectural Corner Markers */}
+      <div className="hidden lg:flex justify-between items-center max-w-7xl mx-auto px-10 mb-8 text-[9px] font-mono tracking-widest text-silver/60 uppercase select-none border-b border-white/5 pb-3">
+        <span className="flex items-center gap-1.5">
+          <span className="text-silver">+</span> 28°36'50" N • 77°12'32" E [NEW DELHI WORKSHOP]
+        </span>
+        <span className="flex items-center gap-1.5">
+          <Compass className="w-3 h-3 text-silver/60" /> SACRED GOLDEN RATIO Φ = 1.618
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span>DIM: 185 × 235 × 28 mm</span> <span className="text-silver">+</span>
+        </span>
+      </div>
 
       <div className="max-w-7xl mx-auto px-6 sm:px-10 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-          {/* Left: Minimal Narrative */}
-          <div className="lg:col-span-6 flex flex-col space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+          {/* ======================================================== */}
+          {/* LEFT: Restrained Minimal Editorial Narrative            */}
+          {/* ======================================================== */}
+          <div className="lg:col-span-5 flex flex-col space-y-6 pt-2">
             <div ref={badgeRef} className="opacity-0">
-              <span className="inline-block text-[10px] font-sans font-bold tracking-[0.25em] uppercase text-silver/80 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10">
-                Edition 01 • The Keepsake Frame
+              <span className="inline-flex items-center gap-2 text-[10px] font-sans font-bold tracking-[0.25em] uppercase text-silver/90 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 shadow-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-cobalt animate-ping" />
+                Edition 01 • The Sacred Keepsake Frame
               </span>
             </div>
 
             <h1
               ref={titleRef}
-              className="opacity-0 font-serif text-4xl sm:text-5xl lg:text-6xl tracking-tight text-porcelain leading-[1.1] font-normal"
+              className="opacity-0 font-serif text-4xl sm:text-5xl lg:text-6xl tracking-tight text-porcelain leading-[1.08] font-normal"
             >
-              Give a memory<br />
-              <span className="italic font-normal text-silver/90">a place to live.</span>
+              Turn the frame.<br />
+              <span className="italic font-normal text-silver/90">Reveal the blessing.</span>
             </h1>
 
             <p
               ref={subtitleRef}
-              className="opacity-0 text-silver/70 text-base sm:text-lg max-w-md font-light leading-relaxed font-sans"
+              className="opacity-0 text-silver/80 text-base sm:text-lg max-w-md font-light leading-relaxed font-sans"
             >
-              Architectural photo keepsakes crafted for the people who make life matter. Pure silver clad with nano-ceramic sealing.
+              An architectural devotional sanctuary featuring embossed pure silver relief of Sri Lakshmi & Sri Ganesha. 
+              Turned on its reverse to reveal your deeply crafted, engraved brass-silver keepsake dedication.
             </p>
 
-            {/* Ultra-Minimal Key Specs Row */}
+            {/* Geometrical Architectural Dimension Matrix */}
             <div
               ref={specsRef}
-              className="opacity-0 flex flex-wrap items-center gap-6 pt-2 text-xs font-sans text-silver/80 tracking-wider uppercase"
+              className="opacity-0 grid grid-cols-2 gap-3 pt-2 text-xs font-sans text-silver/80"
             >
-              <div className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-cobalt" />
-                <span>999 Fine Silver Clad</span>
+              <div className="p-3 rounded-[6px] bg-white/5 border border-white/10">
+                <span className="text-[9px] font-mono uppercase tracking-widest text-silver/60 block mb-1">
+                  01 // ALLOY CLAD
+                </span>
+                <span className="font-medium text-porcelain block">999 Fine Silver Clad</span>
+                <span className="text-[10px] text-silver/60">Laser electroformed relief</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-cobalt" />
-                <span>Anti-Tarnish Sealed</span>
+
+              <div className="p-3 rounded-[6px] bg-white/5 border border-white/10">
+                <span className="text-[9px] font-mono uppercase tracking-widest text-silver/60 block mb-1">
+                  02 // CASING
+                </span>
+                <span className="font-medium text-porcelain block">Monolithic Acrylic</span>
+                <span className="text-[10px] text-silver/60">Built-in angled easel stand</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-cobalt" />
-                <span>24–48h Dispatch</span>
+
+              <div className="p-3 rounded-[6px] bg-white/5 border border-white/10">
+                <span className="text-[9px] font-mono uppercase tracking-widest text-silver/60 block mb-1">
+                  03 // PROTECTION
+                </span>
+                <span className="font-medium text-porcelain block">Nano-Ceramic Sealed</span>
+                <span className="text-[10px] text-silver/60">Permanent anti-tarnish barrier</span>
+              </div>
+
+              <div className="p-3 rounded-[6px] bg-white/5 border border-white/10">
+                <span className="text-[9px] font-mono uppercase tracking-widest text-silver/60 block mb-1">
+                  04 // DEDICATION
+                </span>
+                <span className="font-medium text-porcelain block">Bespoke Inscription</span>
+                <span className="text-[10px] text-silver/60">Free engraved rear plaque</span>
               </div>
             </div>
 
             {/* Minimal High-Impact CTAs */}
-            <div ref={ctaRef} className="opacity-0 pt-4 flex flex-wrap items-center gap-4">
+            <div ref={ctaRef} className="opacity-0 pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
               <button
                 type="button"
-                onClick={onAddToCart}
-                className="group inline-flex items-center gap-3 px-8 py-4 rounded-full bg-porcelain text-midnight text-xs font-sans font-semibold tracking-widest uppercase hover:bg-silver transition-all duration-300 shadow-lg active:scale-95"
+                onClick={handleOrderClick}
+                className="group inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full bg-porcelain text-midnight text-xs font-sans font-semibold tracking-widest uppercase hover:bg-silver transition-all duration-300 shadow-xl active:scale-95"
               >
-                <span>Make it a Gift — {priceDisplay}</span>
+                <span>Order with Inscription — {priceDisplay}</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </button>
 
               <a
                 href="#materiality"
-                className="px-6 py-4 text-xs font-sans font-medium tracking-widest uppercase text-silver/80 hover:text-porcelain transition-colors"
+                className="px-5 py-4 text-center text-xs font-sans font-medium tracking-widest uppercase text-silver/80 hover:text-porcelain transition-colors"
               >
-                Explore Craft & Specs
+                Explore Specifications
               </a>
+            </div>
+
+            {/* Added to Bag Toast feedback */}
+            {addedToast && (
+              <div className="p-3.5 rounded-[8px] bg-emerald-950/80 border border-emerald-500/40 text-emerald-200 text-xs font-sans flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>
+                    Keepsake frame with <strong>"{currentInscription.themeTitle}"</strong> inscription added to your bag!
+                  </span>
+                </div>
+                <span className="text-[10px] font-mono uppercase text-emerald-400/80">
+                  Ready
+                </span>
+              </div>
+            )}
+
+            {/* Honest Trust Guarantee */}
+            <div className="pt-3 border-t border-white/10 flex items-center gap-3 text-xs font-sans text-silver/70">
+              <ShieldCheck className="w-4 h-4 text-cobalt shrink-0" />
+              <span>
+                Standard gift packaging included • 24–48h Dispatch across all Indian pincodes
+              </span>
             </div>
           </div>
 
-          {/* Right: Architectural 3D Frame Showcase */}
-          <div className="lg:col-span-6 flex justify-center">
-            <div
-              ref={imageRef}
-              className="opacity-0 relative w-full max-w-md will-change-transform"
-            >
-              <div className="relative overflow-hidden rounded-[8px] bg-midnight-dark border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] group">
-                <img
-                  src="https://lh3.googleusercontent.com/aida/AEtjO1VseaLqacLCWHqIb2xcXrF6nT0MXMvZcWNjGLVlT8p-vDlTjZ4dNg0NRkekEhH-SC4r2IL_faHE7OLeh5SPZ_A1uejHvfOiYnSqdaMXFs7dUqmNkXvIeB5FAEw6aunPBhn2FdaJ_Qoy0rQcvAWh0pjIQFc6YpfrUR36bvT2woO5_E7Ib8V8Ar83HBlxk_mvpp2MoGu_EXtzqP-FTjL1Nwqli0FDzslxtBLfBrDiBFGh5vz5_hzVyj-fOjY"
-                  alt="Silver-coated keepsake frame"
-                  className="w-full h-[460px] sm:h-[520px] object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-midnight/90 via-transparent to-transparent pointer-events-none" />
-
-                {/* Floating Minimal Seal */}
-                <div className="absolute bottom-6 left-6 right-6 p-4 rounded-[6px] bg-midnight/80 backdrop-blur-md border border-white/10 flex items-center justify-between text-porcelain">
-                  <div className="flex items-center gap-3">
-                    <ShieldCheck className="w-5 h-5 text-cobalt shrink-0" />
-                    <div>
-                      <p className="text-xs font-sans font-semibold text-porcelain">
-                        Silveram Certified Clad
-                      </p>
-                      <p className="text-[10px] text-silver/70 font-sans">
-                        Nano-ceramic sealed against indoor tarnishing
-                      </p>
-                    </div>
-                  </div>
-                  <span className="font-serif text-lg font-normal text-silver">
-                    {priceDisplay}
-                  </span>
-                </div>
-              </div>
-            </div>
+          {/* ======================================================== */}
+          {/* RIGHT: Interactive 3D Frame Turn & Bespoke Inscription   */}
+          {/* ======================================================== */}
+          <div className="lg:col-span-7 flex flex-col items-center">
+            <FrameViewer3D onInscriptionChange={setCurrentInscription} />
           </div>
         </div>
       </div>

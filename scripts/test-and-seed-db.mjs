@@ -67,7 +67,7 @@ async function run() {
     // 2. Seed Initial Catalogue Products
     console.log("\nSeeding initial catalogue products...");
 
-    // Product 1: Silver-Coated Frame (Active)
+    // Product 1: Sacred Keepsake Frame (Active)
     const frameDoc = {
       schemaVersion: 1,
       sku: "SIL-FRAME-001",
@@ -76,20 +76,20 @@ async function run() {
       status: "active",
       content: {
         en: {
-          title: "Silver-Coated Keepsake Frame",
-          shortDescription: "An art-directed, silver-coated tabletop photo frame crafted to preserve personal milestones.",
-          description: "Crafted with precision, this silver-coated tabletop frame offers an enduring haven for your most cherished memories. Featuring clean architectural lines, a tarnish-resistant protective finish, and an anti-glare display panel, it elevates any living space or workplace desk.",
-          materialDisclosure: "Verified Composition: Precision engineered base alloy core with verified electroplated high-purity silver coating (non-solid, non-sterling). Coated with an anti-tarnish protective sealant.",
-          seoTitle: "Silver-Coated Keepsake Frame | Silveram",
-          seoDescription: "Thoughtful keepsakes for the people who make life matter. Premium silver-coated photo frame for gifting.",
+          title: "The Sacred Keepsake Frame • Lakshmi-Ganesha Edition",
+          shortDescription: "An architectural devotional keepsake frame featuring pure 999 fine silver clad relief of Sri Lakshmi & Sri Ganesha in monolithic optical acrylic with custom engraved rear plaque.",
+          description: "Crafted with precision geometry, this architectural devotional sanctuary preserves your most sacred blessings and cherished memories. Featuring an embossed 999 fine silver clad relief of Sri Lakshmi and Sri Ganesha with auspicious 'Shubh Labh' floral arches, an ultra-clear monolithic acrylic casing with built-in desktop stand, and a personalized engraved silver keepsake plaque on the reverse.",
+          materialDisclosure: "Verified Composition: Precision engineered structural composite core with verified electroformed 999 fine silver cladding (non-solid, non-sterling). Sealed with permanent nano-ceramic anti-tarnish molecular matrix. Encased within optical-grade monolithic acrylic casing.",
+          seoTitle: "The Sacred Keepsake Frame • Lakshmi-Ganesha Edition | Silveram",
+          seoDescription: "Pure 999 silver clad devotional keepsake frame with personalized rear engraved plaque. Silveram.",
         },
         hi: {
-          title: "सिल्वर-कोटेड कीपसेक फ्रेम",
-          shortDescription: "अनमोल यादों को सहेजने के लिए विशेष रूप से तैयार किया गया सिल्वर-कोटेड फोटो फ्रेम।",
-          description: "सटीकता के साथ तैयार किया गया यह सिल्वर-कोटेड फ्रेम आपकी सबसे प्रिय स्मृतियों को एक सुंदर स्थान देता है।",
-          materialDisclosure: "सत्यापित विवरण: प्रीमियम बेस मेटल कोर पर उच्च शुद्धता वाली सिल्वर-कोटिंग (ठोस चांदी नहीं)।",
-          seoTitle: "सिल्वर-कोटेड कीपसेक फ्रेम | सिलवेराम",
-          seoDescription: "अपनों के लिए एक अनमोल उपहार। सिलवेराम का प्रीमियम सिल्वर-कोटेड फोटो फ्रेम।",
+          title: "सैक्रेड कीपसेक फ्रेम • श्री लक्ष्मी-गणेश संस्करण",
+          shortDescription: "999 फाइन सिल्वर-क्लैड श्री लक्ष्मी और गणेश जी का नक्काशीदार पवित्र फ्रेम, व्यक्तिगत संदेश पट्टिका के साथ।",
+          description: "सटीक ज्यामिति के साथ तैयार किया गया यह पवित्र फ्रेम आपकी सबसे प्रिय स्मृतियों और आशीर्वाद को एक सुंदर स्थान देता है।",
+          materialDisclosure: "सत्यापित विवरण: प्रीमियम कोर पर 999 शुद्ध फाइन सिल्वर इलेक्ट्रोफॉर्म्ड क्लैडिंग (ठोस चांदी नहीं)। नैनो-सिरेमिक एंटी-टार्निश सुरक्षा।",
+          seoTitle: "सैक्रेड कीपसेक फ्रेम | सिलवेराम",
+          seoDescription: "अपनों के लिए एक अनमोल पवित्र उपहार। सिलवेराम का प्रीमियम सिल्वर-क्लैड फ्रेम।",
         },
       },
       priceRupees: Decimal128.fromString("1200.00"),
@@ -97,31 +97,51 @@ async function run() {
       currency: "INR",
       images: [
         {
-          key: "products/sil-frame-001/hero.webp",
+          key: "/products/frame-01.webp",
           alt: {
-            en: "Silver-coated keepsake frame on dark navy background",
-            hi: "गहरे नीले बैकग्राउंड पर सिल्वर-कोटेड फोटो फ्रेम",
+            en: "Silveram Sacred Keepsake Frame front view with Sri Lakshmi and Ganesha",
+            hi: "सिल्वर-कोटेड पवित्र फ्रेम का मुख्य दृश्य",
           },
-          width: 1600,
-          height: 2000,
+          width: 1400,
+          height: 933,
           position: 0,
         },
         {
-          key: "products/sil-frame-001/detail.webp",
+          key: "/products/frame-02.webp",
           alt: {
-            en: "Close up of silver-coated frame edge and tarnish-resistant finish",
-            hi: "सिल्वर-कोटेड फ्रेम के किनारे का विवरण",
+            en: "Perspective view showing monolithic acrylic casing and bevel",
+            hi: "ऐक्रेलिक केसिंग का कोणीय दृश्य",
           },
-          width: 1600,
-          height: 2000,
+          width: 1400,
+          height: 933,
           position: 1,
+        },
+        {
+          key: "/products/frame-03.webp",
+          alt: {
+            en: "Lakshmi and Ganesha idols on royal blue velvet",
+            hi: "शाही नीले मखमली कपड़े पर श्री लक्ष्मी-गणेश",
+          },
+          width: 1400,
+          height: 933,
+          position: 2,
+        },
+        {
+          key: "/products/frame-04.webp",
+          alt: {
+            en: "Macro close-up of 999 fine silver embossed relief",
+            hi: "सिल्वर नक्काशी का नजदीकी दृश्य",
+          },
+          width: 1400,
+          height: 933,
+          position: 3,
         },
       ],
       variants: [
         {
           key: "default",
-          label: "Standard (4x6 in)",
-          options: { size: "4x6" },
+          label: "Standard Tabletop (18.5 × 23.5 cm)",
+          options: { size: "tabletop" },
           priceOverrideRupees: null,
           active: true,
         },
