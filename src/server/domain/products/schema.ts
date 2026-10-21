@@ -1,9 +1,9 @@
 import { ObjectId, Decimal128 } from "mongodb";
 import { z } from "zod";
 import { toRupeeString } from "@/server/db/decimal";
+import { ProductType, ProductStatus, PublicProductDto } from "@/types/products";
 
-export type ProductType = "decorative_frame" | "jewellery";
-export type ProductStatus = "draft" | "active" | "archived";
+export type { ProductType, ProductStatus, PublicProductDto };
 
 export interface LocalizedContent {
   title: string;
@@ -55,37 +55,6 @@ export interface ProductDocument {
   updatedAt: Date;
 }
 
-/**
- * Public DTO returned over API / rendered on client.
- * Strictly rupee strings, never exposes raw Decimal128 or supplier information.
- */
-export interface PublicProductDto {
-  slug: string;
-  sku: string;
-  type: ProductType;
-  title: string;
-  shortDescription?: string;
-  description: string;
-  materialDisclosure: string;
-  priceRupees: string; // exact decimal string "1200.00"
-  compareAtPriceRupees: string | null;
-  currency: "INR";
-  images: Array<{
-    url: string;
-    alt: string;
-    width: number;
-    height: number;
-    position: number;
-  }>;
-  variants: Array<{
-    key: string;
-    label: string;
-    priceRupees: string;
-    options: Record<string, string>;
-    active: boolean;
-  }>;
-  featuredRank: number;
-}
 
 /**
  * Maps a ProductDocument to PublicProductDto for a requested locale.
