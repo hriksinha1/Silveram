@@ -39,7 +39,7 @@ export function PincodeTransitEstimator() {
         valid: true,
         city,
         days,
-        message: `Available for Express Delivery to ${pin} (${city}). Order today before 4 PM for prompt dispatch.`,
+        message: `Available for Express Air Delivery to ${pin} (${city}). Order today before 4 PM for prompt dispatch.`,
       });
     } else {
       setResult({
@@ -50,98 +50,71 @@ export function PincodeTransitEstimator() {
   };
 
   return (
-    <section id="transit" className="w-full bg-porcelain-muted py-20 px-6 lg:px-12 border-b border-silver/40">
-      <div className="max-w-4xl mx-auto">
-        <div className="p-8 lg:p-12 rounded-[4px] bg-white border border-silver/50 shadow-sm flex flex-col items-center text-center">
-          <div className="w-12 h-12 rounded-full bg-cobalt/10 flex items-center justify-center text-cobalt mb-4">
-            <Truck className="w-6 h-6" />
-          </div>
+    <section id="transit" className="w-full bg-porcelain py-20 px-6 sm:px-10 border-b border-silver/30">
+      <div className="max-w-3xl mx-auto text-center space-y-6">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-porcelain-muted border border-silver/40 text-[10px] font-sans font-bold uppercase tracking-[0.2em] text-cobalt">
+          <Truck className="w-3.5 h-3.5" />
+          <span>Pan-India Air Velocity</span>
+        </div>
 
-          <span className="text-xs font-bold uppercase tracking-widest text-cobalt mb-2">
-            Transit Speed
-          </span>
-          <h3 className="font-serif text-3xl text-midnight font-normal mb-2">
-            When will your gift reach their doorstep?
-          </h3>
-          <p className="text-xs text-graphite-muted max-w-lg mb-8 leading-relaxed">
-            Enter any 6-digit Indian delivery pincode to check air transit velocity. All packages ship air-priority via BlueDart and Delhivery Express.
-          </p>
+        <h3 className="font-serif text-3xl sm:text-4xl text-midnight font-normal">
+          When will your keepsake arrive?
+        </h3>
 
-          {/* Form */}
-          <div className="w-full max-w-md flex flex-col sm:flex-row gap-2 mb-4">
-            <input
-              type="text"
-              maxLength={6}
-              value={pincode}
-              onChange={(e) => setPincode(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleCheck()}
-              placeholder="e.g. 110001, 560001, 400050"
-              className="flex-1 px-4 py-3 rounded-[4px] bg-porcelain text-midnight placeholder:text-graphite-muted/60 text-sm font-mono outline-none border border-silver/60 focus:border-cobalt transition-all"
-            />
-            <button
-              type="button"
-              onClick={handleCheck}
-              className="px-6 py-3 rounded-[4px] bg-cobalt hover:bg-cobalt-hover text-white text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap shadow-sm"
-            >
-              Check Transit
-            </button>
-          </div>
+        {/* Minimal Single-Line Form */}
+        <div className="max-w-md mx-auto flex items-center gap-2 p-1.5 rounded-full bg-white border border-silver/60 shadow-sm focus-within:border-midnight transition-colors">
+          <input
+            type="text"
+            maxLength={6}
+            value={pincode}
+            onChange={(e) => setPincode(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleCheck()}
+            placeholder="Enter 6-digit Indian PIN code..."
+            className="flex-1 px-4 py-2 bg-transparent text-midnight placeholder:text-graphite-muted/50 text-xs font-mono outline-none"
+          />
+          <button
+            type="button"
+            onClick={handleCheck}
+            className="px-6 py-2.5 rounded-full bg-midnight text-porcelain text-xs font-sans font-semibold tracking-wider uppercase hover:bg-midnight-light transition-all shadow-sm"
+          >
+            Check
+          </button>
+        </div>
 
-          {/* Result Box */}
-          {result && (
-            <div
-              className={`w-full max-w-md p-4 rounded-[4px] text-left transition-all border ${
-                result.valid
-                  ? "bg-porcelain-muted border-cobalt/30"
-                  : "bg-red-50 border-red-200"
-              }`}
-            >
-              {result.valid ? (
-                <div>
-                  <div className="flex items-center gap-2 text-cobalt font-semibold text-xs mb-1">
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>Estimated: {result.days}</span>
-                  </div>
-                  <p className="text-xs text-graphite-muted leading-relaxed">
-                    {result.message}
-                  </p>
+        {/* Dynamic Result Notice */}
+        {result && (
+          <div
+            className={`max-w-md mx-auto p-4 rounded-[6px] text-left text-xs transition-all border ${
+              result.valid
+                ? "bg-white border-cobalt/30 text-midnight"
+                : "bg-red-50 border-red-200 text-red-700"
+            }`}
+          >
+            {result.valid ? (
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 font-semibold text-cobalt">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>Estimated: {result.days}</span>
                 </div>
-              ) : (
-                <div className="flex items-center gap-2 text-red-600 text-xs font-semibold">
-                  <AlertCircle className="w-4 h-4" />
-                  <span>{result.message}</span>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Tiered Speed Badges */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-8">
-            <div className="p-3.5 rounded-[4px] bg-porcelain border border-silver/40 text-center">
-              <span className="text-[10px] text-graphite-muted uppercase font-bold block mb-0.5">
-                Delhi NCR & Mumbai
-              </span>
-              <span className="text-xs font-semibold text-midnight">
-                48 Hours Air Delivery
-              </span>
-            </div>
-            <div className="p-3.5 rounded-[4px] bg-porcelain border border-silver/40 text-center">
-              <span className="text-[10px] text-graphite-muted uppercase font-bold block mb-0.5">
-                Bengaluru, Hyd, Pune
-              </span>
-              <span className="text-xs font-semibold text-midnight">
-                2–3 Business Days
-              </span>
-            </div>
-            <div className="p-3.5 rounded-[4px] bg-porcelain border border-silver/40 text-center">
-              <span className="text-[10px] text-graphite-muted uppercase font-bold block mb-0.5">
-                Rest of India & J&K
-              </span>
-              <span className="text-xs font-semibold text-midnight">
-                3–5 Business Days
-              </span>
-            </div>
+                <p className="text-[11px] text-graphite-muted leading-relaxed">
+                  {result.message}
+                </p>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 font-medium">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{result.message}</span>
+              </div>
+            )}
           </div>
+        )}
+
+        <div className="flex flex-wrap items-center justify-center gap-6 text-[11px] font-sans text-graphite-muted pt-4">
+          <span>Delhi NCR & Mumbai: <strong className="text-midnight">24–36 hrs</strong></span>
+          <span>•</span>
+          <span>Bengaluru, Hyd, Pune: <strong className="text-midnight">48 hrs</strong></span>
+          <span>•</span>
+          <span>Rest of India: <strong className="text-midnight">3–4 Days</strong></span>
         </div>
       </div>
     </section>

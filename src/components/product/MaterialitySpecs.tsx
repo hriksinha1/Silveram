@@ -1,212 +1,136 @@
 "use client";
 
-import React from "react";
-import { Layers, ThumbsUp } from "lucide-react";
+import React, { useRef } from "react";
 import { PublicProductDto } from "@/types/products";
 import { formatRupeesDisplay } from "@/lib/format";
+import { ShieldCheck, ArrowRight } from "lucide-react";
+import { gsap } from "gsap";
+import { useGSAP } from "@gsap/react";
 
 interface MaterialitySpecsProps {
   product?: PublicProductDto;
   onAddToCart?: () => void;
 }
 
+const specs = [
+  { label: "Outer Dimensions", value: "18.5 × 23.5 × 1.8 cm", note: "Tabletop vertical & horizontal" },
+  { label: "Aperture Capacity", value: '4" × 6" with mat / 5" × 7" full', note: "Acid-free bevel mat included" },
+  { label: "Net Weight", value: "360 Grams", note: "Weighted reassuring desktop heft" },
+  { label: "Optical Glass", value: "2.0 mm Ultra-Clear", note: "99% UV attenuation against fading" },
+  { label: "Backing Easel", value: "Black Velvet Plush", note: "Dual-hinged brass fixtures" },
+  { label: "Pricing Integrity", value: "₹1,200 All-Inclusive", note: "GST & rigid keepsake box included" },
+];
+
 export function MaterialitySpecs({ product, onAddToCart }: MaterialitySpecsProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const priceDisplay = product ? formatRupeesDisplay(product.priceRupees) : "₹1,200.00";
 
+  useGSAP(
+    () => {
+      gsap.from(".spec-item", {
+        opacity: 0,
+        y: 20,
+        duration: 0.6,
+        stagger: 0.08,
+        ease: "power2.out",
+      });
+    },
+    { scope: containerRef }
+  );
+
   return (
-    <section id="materiality" className="w-full bg-porcelain py-20 px-6 lg:px-12 text-graphite border-b border-silver/40">
+    <section
+      id="materiality"
+      ref={containerRef}
+      className="w-full bg-porcelain-muted py-24 sm:py-32 px-6 sm:px-10 border-b border-silver/30"
+    >
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
-        <div className="max-w-2xl mb-14">
-          <span className="text-xs font-bold uppercase tracking-widest text-cobalt block mb-2">
-            Technical Honesty
-          </span>
-          <h2 className="font-serif text-3xl sm:text-4xl text-midnight font-normal">
-            Radical transparency in our metals & craft.
-          </h2>
-          <p className="text-sm text-graphite-muted mt-3 leading-relaxed">
-            We believe luxury should be accessible and truthful. Here is every exact specification of how the Silveram Keepsake Frame is engineered.
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16">
+          <div className="max-w-lg">
+            <span className="text-[10px] font-sans font-bold uppercase tracking-[0.25em] text-cobalt block mb-3">
+              Craft & Honesty
+            </span>
+            <h2 className="font-serif text-3xl sm:text-4xl text-midnight font-normal leading-tight">
+              Radical transparency in our metals.
+            </h2>
+          </div>
+          <p className="text-xs sm:text-sm font-sans text-graphite-muted max-w-sm mt-4 md:mt-0 font-light leading-relaxed">
+            Every specification is verified. Never confusing electroplated silver with solid sterling silver.
           </p>
         </div>
 
-        {/* Split Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-          {/* Left: Macro Visual & 3-Tier Layering System */}
-          <div className="lg:col-span-5 flex flex-col gap-6">
-            <div className="w-full h-80 rounded-[4px] overflow-hidden bg-porcelain-muted relative border border-silver/40 shadow-sm">
-              <img
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTIkUfYS9k0jMwXKapmOXhyO-TV5vsZIu_Og5nt6DdEaijow_Z_u-YiZyk3xxd5J6KWmbd3A1k8m_a0UwdekrXO-GL8KdSUbRJyb201Z_JPpexaCzbKad9NaHXep1GGJBcuscPKRddopegIui4wOiC18Q8zRzhh0yL1gic_4dOT5KDX_7rMjPXmBaJRrVC7ufTcOsjDgSyxdKgvB7C08CX2gOnGh4ELeBcSVpd7iWXV0HRkL_gfN0s"
-                alt="Extreme macro studio shot of silver bezel frame with fine micro textures"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute top-4 left-4 bg-midnight/90 text-porcelain px-3 py-1 rounded-[4px] text-[10px] tracking-wider uppercase font-bold backdrop-blur-sm border border-silver/20">
-                Cross-Section View
-              </div>
-            </div>
-
-            {/* Purity Breakdown Graphic Card */}
-            <div className="p-6 rounded-[4px] bg-white border border-silver/50 shadow-sm space-y-4">
-              <h4 className="text-sm font-bold text-midnight flex items-center gap-2 uppercase tracking-wide">
-                <Layers className="w-4 h-4 text-cobalt" />
-                <span>The 3-Tier Layering System</span>
-              </h4>
-
-              <div className="space-y-4 text-xs text-graphite-muted">
-                <div className="flex items-start gap-3">
-                  <span className="font-mono text-cobalt font-bold text-sm">01</span>
-                  <div>
-                    <p className="font-semibold text-midnight text-xs">
-                      Substrate Core: Weighted Architectural Alloy
-                    </p>
-                    <p className="text-[11px] mt-0.5 leading-relaxed">
-                      280 grams of solid composite metal. Feels reassuringly dense in hand, never flimsy or tin-like.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <span className="font-mono text-cobalt font-bold text-sm">02</span>
-                  <div>
-                    <p className="font-semibold text-midnight text-xs">
-                      Electro-Deposit: Pure 999 Fine Silver
-                    </p>
-                    <p className="text-[11px] mt-0.5 leading-relaxed">
-                      High-micron bath deposition providing authentic silver luminosity, depth, and vintage luster.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <span className="font-mono text-cobalt font-bold text-sm">03</span>
-                  <div>
-                    <p className="font-semibold text-midnight text-xs">
-                      Armor: Nano-Ceramic Shield
-                    </p>
-                    <p className="text-[11px] mt-0.5 leading-relaxed">
-                      Invisible baked barrier preventing sulfur air-oxidation. Wipe clean with dry lint-free cloth only.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+        {/* 3-Tier Layering System Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+          <div className="p-8 rounded-[6px] bg-white border border-silver/40 shadow-sm space-y-3">
+            <span className="font-mono text-xs font-bold text-cobalt tracking-widest block">01 / SUBSTRATE</span>
+            <h4 className="font-serif text-xl text-midnight font-normal">Architectural Base Alloy</h4>
+            <p className="text-xs font-sans text-graphite-muted leading-relaxed font-light">
+              280g solid composite core. Dense, stable, and reassuring in hand.
+            </p>
           </div>
 
-          {/* Right: Technical Specification Matrix */}
-          <div className="lg:col-span-7 flex flex-col">
-            <div className="overflow-hidden rounded-[4px] bg-white border border-silver/50 p-6 lg:p-8 shadow-sm">
-              <div className="flex items-center justify-between pb-6 mb-6 border-b border-silver/30">
-                <div>
-                  <span className="text-[11px] font-bold uppercase tracking-widest text-cobalt">
-                    Dimension & Fit
-                  </span>
-                  <h3 className="font-serif text-2xl text-midnight font-normal mt-1">
-                    The Specification Matrix
-                  </h3>
-                </div>
-                <span className="px-3 py-1 bg-porcelain-muted text-midnight rounded-[4px] text-xs font-mono font-semibold border border-silver/40">
-                  SKU: {product?.sku || "SIL-FRAME-001"}
+          <div className="p-8 rounded-[6px] bg-white border border-silver/40 shadow-sm space-y-3">
+            <span className="font-mono text-xs font-bold text-cobalt tracking-widest block">02 / DEPOSIT</span>
+            <h4 className="font-serif text-xl text-midnight font-normal">999 Fine Silver Clad</h4>
+            <p className="text-xs font-sans text-graphite-muted leading-relaxed font-light">
+              High-micron pure silver bath providing authentic heirloom luminosity.
+            </p>
+          </div>
+
+          <div className="p-8 rounded-[6px] bg-white border border-silver/40 shadow-sm space-y-3">
+            <span className="font-mono text-xs font-bold text-cobalt tracking-widest block">03 / ARMOR</span>
+            <h4 className="font-serif text-xl text-midnight font-normal">Nano-Ceramic Sealant</h4>
+            <p className="text-xs font-sans text-graphite-muted leading-relaxed font-light">
+              Invisible baked layer preventing indoor sulfur tarnish and fingerprint marks.
+            </p>
+          </div>
+        </div>
+
+        {/* Minimal Specification Grid */}
+        <div className="p-8 sm:p-12 rounded-[6px] bg-white border border-silver/40 shadow-sm">
+          <div className="flex items-center justify-between pb-6 mb-8 border-b border-silver/30">
+            <span className="text-xs font-sans font-bold uppercase tracking-widest text-midnight">
+              Technical Matrix
+            </span>
+            <span className="font-mono text-xs text-graphite-muted">
+              SKU: {product?.sku || "SIL-FRAME-001"}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-10">
+            {specs.map((s) => (
+              <div key={s.label} className="spec-item space-y-1">
+                <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-graphite-muted/80 block">
+                  {s.label}
                 </span>
+                <p className="font-serif text-lg text-midnight font-normal">
+                  {s.value}
+                </p>
+                <p className="text-[11px] font-sans text-graphite-muted font-light">
+                  {s.note}
+                </p>
               </div>
+            ))}
+          </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8">
-                <div>
-                  <span className="text-[10px] uppercase tracking-wider text-graphite-muted block mb-1 font-bold">
-                    Outer Dimensions
-                  </span>
-                  <p className="text-sm font-semibold text-midnight">
-                    18.5 cm × 23.5 cm × 1.8 cm
-                  </p>
-                  <p className="text-[11px] text-graphite-muted">
-                    Designed for vertical tabletop or mantle display
-                  </p>
-                </div>
-
-                <div>
-                  <span className="text-[10px] uppercase tracking-wider text-graphite-muted block mb-1 font-bold">
-                    Photo Aperture Capacity
-                  </span>
-                  <p className="text-sm font-semibold text-midnight">
-                    Fits 4" × 6" (with mat) or 5" × 7" (full)
-                  </p>
-                  <p className="text-[11px] text-graphite-muted">
-                    Includes removable acid-free bevel matting
-                  </p>
-                </div>
-
-                <div>
-                  <span className="text-[10px] uppercase tracking-wider text-graphite-muted block mb-1 font-bold">
-                    Weight & Hand-Feel
-                  </span>
-                  <p className="text-sm font-semibold text-midnight">
-                    360 grams (Gross unboxed weight)
-                  </p>
-                  <p className="text-[11px] text-graphite-muted">
-                    Reassuring heft that stays grounded on tables
-                  </p>
-                </div>
-
-                <div>
-                  <span className="text-[10px] uppercase tracking-wider text-graphite-muted block mb-1 font-bold">
-                    Glass Spec
-                  </span>
-                  <p className="text-sm font-semibold text-midnight">
-                    2.0mm High-Clarity Optical Glass
-                  </p>
-                  <p className="text-[11px] text-graphite-muted">
-                    99% UV attenuation protects ink against fading
-                  </p>
-                </div>
-
-                <div>
-                  <span className="text-[10px] uppercase tracking-wider text-graphite-muted block mb-1 font-bold">
-                    Backing Easel
-                  </span>
-                  <p className="text-sm font-semibold text-midnight">
-                    Charcoal Black Velvet Plush Easel
-                  </p>
-                  <p className="text-[11px] text-graphite-muted">
-                    Dual-hinged brass fixtures for stability
-                  </p>
-                </div>
-
-                <div>
-                  <span className="text-[10px] uppercase tracking-wider text-graphite-muted block mb-1 font-bold">
-                    Pricing Integrity
-                  </span>
-                  <p className="font-serif text-lg font-bold text-midnight">
-                    {priceDisplay} All-Inclusive
-                  </p>
-                  <p className="text-[11px] text-graphite-muted">
-                    Includes GST, rigid keepsake box & envelope
-                  </p>
-                </div>
-              </div>
-
-              {/* Assurance Callout */}
-              <div className="mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-porcelain-muted p-4 rounded-[4px] border border-silver/40">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-cobalt border border-silver/40">
-                    <ThumbsUp className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-midnight">
-                      7-Day "Delighted or Replaced" Guarantee
-                    </p>
-                    <p className="text-[11px] text-graphite-muted">
-                      Transit damage replaced on immediate photo review, zero questions asked.
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={onAddToCart}
-                  className="whitespace-nowrap px-6 py-2.5 bg-midnight text-white text-xs font-bold uppercase tracking-wider rounded-[4px] hover:bg-midnight-light transition-colors"
-                >
-                  Order Keepsake Frame
-                </button>
-              </div>
+          {/* Guarantee Banner */}
+          <div className="pt-6 border-t border-silver/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <ShieldCheck className="w-5 h-5 text-cobalt shrink-0" />
+              <p className="text-xs font-sans text-graphite-muted">
+                <strong className="text-midnight font-semibold">7-Day Replacement Guarantee:</strong> Instant photo review for any transit damage.
+              </p>
             </div>
+
+            <button
+              type="button"
+              onClick={onAddToCart}
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-midnight text-porcelain text-xs font-sans font-semibold tracking-wider uppercase hover:bg-midnight-light transition-all shadow-sm whitespace-nowrap"
+            >
+              <span>Order Frame — {priceDisplay}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       </div>

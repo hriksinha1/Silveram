@@ -1,9 +1,11 @@
 "use client";
 
-import React from "react";
-import { ArrowRight, ChevronDown, Gift, Truck, ShieldCheck } from "lucide-react";
+import React, { useRef } from "react";
+import { ArrowRight, ShieldCheck } from "lucide-react";
 import { PublicProductDto } from "@/types/products";
 import { formatRupeesDisplay } from "@/lib/format";
+import { gsap } from "gsap";
+import { useGSAP } from "@gsap/react";
 
 interface HeroSectionProps {
   product?: PublicProductDto;
@@ -11,137 +13,204 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ product, onAddToCart }: HeroSectionProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLDivElement>(null);
+  const badgeRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const subtitleRef = useRef<HTMLParagraphElement>(null);
+  const specsRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+
   const priceDisplay = product ? formatRupeesDisplay(product.priceRupees) : "₹1,200.00";
 
-  return (
-    <section id="hero" className="relative w-full bg-midnight text-porcelain overflow-hidden py-16 lg:py-24 border-b border-silver/20">
-      {/* Atmospheric Ambient Glows */}
-      <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-cobalt/20 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-1/4 w-[500px] h-72 rounded-full bg-white/5 blur-2xl pointer-events-none" />
+  // GSAP Entrance Animations & Interactive Tilt
+  useGSAP(
+    () => {
+      // 1. Staggered Entrance
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Left: Editorial Narrative */}
-          <div className="lg:col-span-6 flex flex-col">
-            {/* Overline Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[4px] bg-white/10 text-silver mb-6 self-start border border-silver/20">
-              <span className="w-1.5 h-1.5 rounded-full bg-cobalt" />
-              <span className="text-[10px] uppercase tracking-widest font-bold">
-                Edition 01 — The Keepsake Frame • {priceDisplay}
+      tl.fromTo(
+        badgeRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.8, delay: 0.1 }
+      )
+        .fromTo(
+          titleRef.current,
+          { opacity: 0, y: 35 },
+          { opacity: 1, y: 0, duration: 1 },
+          "-=0.5"
+        )
+        .fromTo(
+          subtitleRef.current,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.8 },
+          "-=0.6"
+        )
+        .fromTo(
+          specsRef.current,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.8 },
+          "-=0.5"
+        )
+        .fromTo(
+          ctaRef.current,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.8 },
+          "-=0.6"
+        )
+        .fromTo(
+          imageRef.current,
+          { opacity: 0, scale: 0.94, y: 30 },
+          { opacity: 1, scale: 1, y: 0, duration: 1.2, ease: "power2.out" },
+          "-=1.0"
+        );
+
+      // 2. Subtle Floating Animation on Image
+      gsap.to(imageRef.current, {
+        y: -10,
+        duration: 3,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
+    },
+    { scope: containerRef }
+  );
+
+  // Interactive 3D Perspective Tilt on Mouse Movement
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!imageRef.current) return;
+    const { clientX, clientY, currentTarget } = e;
+    const { left, top, width, height } = currentTarget.getBoundingClientRect();
+    const x = (clientX - left) / width - 0.5;
+    const y = (clientY - top) / height - 0.5;
+
+    gsap.to(imageRef.current, {
+      rotationY: x * 10,
+      rotationX: -y * 10,
+      transformPerspective: 1000,
+      duration: 0.5,
+      ease: "power2.out",
+    });
+  };
+
+  const handleMouseLeave = () => {
+    if (!imageRef.current) return;
+    gsap.to(imageRef.current, {
+      rotationY: 0,
+      rotationX: 0,
+      duration: 0.8,
+      ease: "power2.out",
+    });
+  };
+
+  return (
+    <section
+      id="hero"
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="relative w-full bg-midnight text-porcelain overflow-hidden py-16 sm:py-24 lg:py-32 border-b border-silver/10"
+    >
+      {/* Ambient Lighting Orbs */}
+      <div className="absolute top-1/4 right-1/4 w-[450px] h-[450px] rounded-full bg-cobalt/15 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-10 left-10 w-[350px] h-[350px] rounded-full bg-silver/10 blur-[100px] pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+          {/* Left: Minimal Narrative */}
+          <div className="lg:col-span-6 flex flex-col space-y-6">
+            <div ref={badgeRef} className="opacity-0">
+              <span className="inline-block text-[10px] font-sans font-bold tracking-[0.25em] uppercase text-silver/80 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10">
+                Edition 01 • The Keepsake Frame
               </span>
             </div>
 
-            {/* Headline */}
-            <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl tracking-tight text-porcelain mb-6 leading-[1.1]">
+            <h1
+              ref={titleRef}
+              className="opacity-0 font-serif text-4xl sm:text-5xl lg:text-6xl tracking-tight text-porcelain leading-[1.1] font-normal"
+            >
               Give a memory<br />
-              <span className="italic font-normal text-silver">a place to live.</span>
+              <span className="italic font-normal text-silver/90">a place to live.</span>
             </h1>
 
-            {/* Body Narrative */}
-            <p className="text-silver/80 text-base sm:text-lg max-w-xl mb-8 font-light leading-relaxed">
-              Thoughtful keepsakes crafted for the people who make life matter. Hand-finished silver-coated photo frame with museum-grade archival matting, engineered for modern Indian spaces.
+            <p
+              ref={subtitleRef}
+              className="opacity-0 text-silver/70 text-base sm:text-lg max-w-md font-light leading-relaxed font-sans"
+            >
+              Architectural photo keepsakes crafted for the people who make life matter. Pure silver clad with nano-ceramic sealing.
             </p>
 
-            {/* Specifications Micro-Bar */}
-            <div className="grid grid-cols-3 gap-3 p-4 rounded-[4px] bg-white/5 backdrop-blur-sm mb-8 border border-silver/20 text-porcelain">
-              <div className="flex flex-col">
-                <span className="text-[9px] uppercase tracking-wider text-silver/60 font-semibold">
-                  Coating
-                </span>
-                <span className="text-xs sm:text-sm font-semibold text-porcelain">
-                  999 Fine Silver Clad
-                </span>
+            {/* Ultra-Minimal Key Specs Row */}
+            <div
+              ref={specsRef}
+              className="opacity-0 flex flex-wrap items-center gap-6 pt-2 text-xs font-sans text-silver/80 tracking-wider uppercase"
+            >
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-cobalt" />
+                <span>999 Fine Silver Clad</span>
               </div>
-              <div className="flex flex-col">
-                <span className="text-[9px] uppercase tracking-wider text-silver/60 font-semibold">
-                  Finish
-                </span>
-                <span className="text-xs sm:text-sm font-semibold text-porcelain">
-                  Anti-Tarnish Sealed
-                </span>
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-cobalt" />
+                <span>Anti-Tarnish Sealed</span>
               </div>
-              <div className="flex flex-col">
-                <span className="text-[9px] uppercase tracking-wider text-silver/60 font-semibold">
-                  Standard Dispatch
-                </span>
-                <span className="text-xs sm:text-sm font-semibold text-porcelain">
-                  24–48 Hours
-                </span>
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-cobalt" />
+                <span>24–48h Dispatch</span>
               </div>
             </div>
 
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+            {/* Minimal High-Impact CTAs */}
+            <div ref={ctaRef} className="opacity-0 pt-4 flex flex-wrap items-center gap-4">
               <button
                 type="button"
                 onClick={onAddToCart}
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-[4px] bg-cobalt hover:bg-cobalt-hover text-white text-xs font-bold tracking-widest uppercase transition-all shadow-md active:scale-[0.98]"
+                className="group inline-flex items-center gap-3 px-8 py-4 rounded-full bg-porcelain text-midnight text-xs font-sans font-semibold tracking-widest uppercase hover:bg-silver transition-all duration-300 shadow-lg active:scale-95"
               >
                 <span>Make it a Gift — {priceDisplay}</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </button>
+
               <a
                 href="#materiality"
-                className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-[4px] bg-white/10 hover:bg-white/15 text-silver text-xs font-bold tracking-widest uppercase transition-colors border border-silver/30"
+                className="px-6 py-4 text-xs font-sans font-medium tracking-widest uppercase text-silver/80 hover:text-porcelain transition-colors"
               >
-                <span>Explore The Object</span>
-                <ChevronDown className="w-4 h-4" />
+                Explore Craft & Specs
               </a>
-            </div>
-
-            {/* Gift & Delivery Guarantee */}
-            <div className="flex flex-wrap items-center gap-4 mt-6 text-silver/70 text-xs">
-              <div className="flex items-center gap-1.5">
-                <Gift className="w-4 h-4 text-cobalt" />
-                <span>Complimentary Rigid Box & Card</span>
-              </div>
-              <span>•</span>
-              <div className="flex items-center gap-1.5">
-                <Truck className="w-4 h-4 text-cobalt" />
-                <span>All-India Express Courier</span>
-              </div>
             </div>
           </div>
 
-          {/* Right: Gallery Composition with Hero Image */}
-          <div className="lg:col-span-6 relative flex justify-center">
-            <div className="relative w-full max-w-lg">
-              {/* Main Focal Image */}
-              <div className="relative overflow-hidden rounded-[4px] bg-midnight-dark border border-silver/30 shadow-2xl">
+          {/* Right: Architectural 3D Frame Showcase */}
+          <div className="lg:col-span-6 flex justify-center">
+            <div
+              ref={imageRef}
+              className="opacity-0 relative w-full max-w-md will-change-transform"
+            >
+              <div className="relative overflow-hidden rounded-[8px] bg-midnight-dark border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] group">
                 <img
-                  className="w-full h-[450px] sm:h-[520px] object-cover object-center"
-                  alt="Intricate silver-coated antique embossed photo frame resting on ivory console with luxury gift box"
                   src="https://lh3.googleusercontent.com/aida/AEtjO1VseaLqacLCWHqIb2xcXrF6nT0MXMvZcWNjGLVlT8p-vDlTjZ4dNg0NRkekEhH-SC4r2IL_faHE7OLeh5SPZ_A1uejHvfOiYnSqdaMXFs7dUqmNkXvIeB5FAEw6aunPBhn2FdaJ_Qoy0rQcvAWh0pjIQFc6YpfrUR36bvT2woO5_E7Ib8V8Ar83HBlxk_mvpp2MoGu_EXtzqP-FTjL1Nwqli0FDzslxtBLfBrDiBFGh5vz5_hzVyj-fOjY"
+                  alt="Silver-coated keepsake frame"
+                  className="w-full h-[460px] sm:h-[520px] object-cover object-center transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-midnight/80 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-midnight/90 via-transparent to-transparent pointer-events-none" />
 
-                {/* Floating Seal Badge */}
-                <div className="absolute bottom-5 left-5 right-5 p-4 rounded-[4px] bg-midnight/90 backdrop-blur-md border border-silver/30 flex items-center justify-between text-porcelain shadow-lg">
+                {/* Floating Minimal Seal */}
+                <div className="absolute bottom-6 left-6 right-6 p-4 rounded-[6px] bg-midnight/80 backdrop-blur-md border border-white/10 flex items-center justify-between text-porcelain">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-cobalt/20 flex items-center justify-center text-cobalt">
-                      <ShieldCheck className="w-5 h-5" />
-                    </div>
+                    <ShieldCheck className="w-5 h-5 text-cobalt shrink-0" />
                     <div>
-                      <p className="text-xs sm:text-sm font-semibold text-porcelain leading-tight">
-                        Silveram Certified Electroplated Coating
+                      <p className="text-xs font-sans font-semibold text-porcelain">
+                        Silveram Certified Clad
                       </p>
-                      <p className="text-[11px] text-silver/70">
-                        Nano-ceramic sealant guaranteed against indoor tarnishing
+                      <p className="text-[10px] text-silver/70 font-sans">
+                        Nano-ceramic sealed against indoor tarnishing
                       </p>
                     </div>
                   </div>
-                  <span className="font-serif text-lg font-bold text-silver">
+                  <span className="font-serif text-lg font-normal text-silver">
                     {priceDisplay}
                   </span>
                 </div>
-              </div>
-
-              {/* Accent Floating Tag */}
-              <div className="absolute -top-3 -right-3 hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-[4px] bg-porcelain text-midnight shadow-md border border-silver/50">
-                <span className="w-2 h-2 rounded-full bg-cobalt" />
-                <span className="text-[10px] uppercase tracking-wider font-bold">
-                  Includes Bespoke Photo Print
-                </span>
               </div>
             </div>
           </div>

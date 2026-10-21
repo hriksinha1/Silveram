@@ -1,84 +1,72 @@
 "use client";
 
 import React, { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { Plus, Minus } from "lucide-react";
 
 interface FaqItem {
-  question: string;
-  answer: string;
+  q: string;
+  a: string;
 }
 
 const faqs: FaqItem[] = [
   {
-    question: "Is this solid sterling silver or silver-coated?",
-    answer:
-      "We are strictly transparent: this is not solid sterling silver throughout, which would weigh over a kilogram and cost upwards of ₹25,000. Instead, Silveram uses an architectural heavy composite core electro-deposited with pure 999 Fine Silver and sealed with a nano-ceramic protective barrier. This gives you genuine silver luminosity, authentic luxury heft, and lifelong anti-tarnish durability at an honest ₹1,200 price point.",
+    q: "Is this solid sterling silver or silver-coated?",
+    a: "We are strictly transparent: this is not solid sterling silver throughout, which would weigh over a kilogram and cost upwards of ₹25,000. Instead, Silveram uses an architectural heavy composite core electro-deposited with pure 999 Fine Silver and sealed with a nano-ceramic protective barrier for lifelong luster at an honest ₹1,200.",
   },
   {
-    question: "Can I include a printed photograph inside the frame before it ships?",
-    answer:
-      "Yes, at absolutely no additional cost. During checkout, you can upload any high-resolution image from your phone or laptop. Our team inspects the framing ratio, prints it on archival 260 GSM satin paper, and fits it securely behind the optical glass. When your recipient unboxes the rigid gift package, their memory is already waiting for them.",
+    q: "Can I include a printed photograph inside the frame before it ships?",
+    a: "Yes, complimentary. Upload any high-resolution photo during checkout. We balance, print on archival 260 GSM satin paper, and install it securely behind the optical glass so it arrives gift-ready.",
   },
   {
-    question: "What happens if the optical glass or frame arrives damaged in transit?",
-    answer:
-      "We package each frame inside custom die-cut high-density foam within a rigid keepsake box, making transit damage exceedingly rare. However, if any glass fracture or structural defect occurs, simply send a photo to our WhatsApp concierge within 7 days. We dispatch an instant expedited replacement unit free of charge, with zero return hassle required.",
+    q: "What happens if the optical glass or frame arrives damaged?",
+    a: "Damage is rare due to custom high-density foam packaging. However, if any transit fracture occurs, WhatsApp a photo within 7 days and we dispatch an immediate replacement free of charge.",
   },
   {
-    question: "How do I clean and maintain the silver luster over the years?",
-    answer:
-      "Because of our nano-ceramic anti-tarnish sealing, you never need abrasive silver polish pastes or chemical dips. Simply dust the frame with the microfiber cloth included in the bottom compartment of your keepsake box. Avoid harsh chemical sprays or direct abrasive cleaners.",
+    q: "How do I clean and maintain the luster?",
+    a: "Thanks to nano-ceramic sealing, you never need abrasive polish pastes. Simply dust with the microfiber cloth included in your keepsake box. Avoid harsh chemical sprays.",
   },
 ];
 
 export function FaqSection() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
-  const toggle = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index);
+  const toggle = (idx: number) => {
+    setOpenIndex(openIndex === idx ? null : idx);
   };
 
   return (
-    <section id="faq" className="w-full bg-porcelain py-20 px-6 lg:px-12 text-graphite border-b border-silver/40">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-14">
-          <span className="text-xs font-bold uppercase tracking-widest text-cobalt block mb-2">
-            Clarity & Confidence
+    <section id="faq" className="w-full bg-porcelain py-24 sm:py-32 px-6 sm:px-10 border-b border-silver/30">
+      <div className="max-w-3xl mx-auto">
+        <div className="text-center mb-16">
+          <span className="text-[10px] font-sans font-bold uppercase tracking-[0.25em] text-cobalt block mb-3">
+            Questions & Confidence
           </span>
           <h2 className="font-serif text-3xl sm:text-4xl text-midnight font-normal">
             Frequently Asked Questions
           </h2>
-          <p className="text-xs text-graphite-muted mt-2">
-            Clear answers about materials, photo printing, and our guarantee.
-          </p>
         </div>
 
-        <div className="space-y-4">
+        <div className="divide-y divide-silver/40 border-y border-silver/40">
           {faqs.map((faq, idx) => {
             const isOpen = openIndex === idx;
             return (
-              <div
-                key={faq.question}
-                className="p-6 rounded-[4px] bg-white border border-silver/50 transition-all shadow-sm"
-              >
+              <div key={faq.q} className="py-6 transition-colors">
                 <button
                   type="button"
                   onClick={() => toggle(idx)}
-                  className="w-full flex items-center justify-between text-left gap-4"
+                  className="w-full flex items-center justify-between text-left gap-6 group"
                 >
-                  <span className="text-sm sm:text-base font-semibold text-midnight">
-                    {faq.question}
+                  <span className="font-serif text-lg sm:text-xl text-midnight font-normal group-hover:text-cobalt transition-colors">
+                    {faq.q}
                   </span>
-                  <ChevronDown
-                    className={`w-5 h-5 text-cobalt shrink-0 transition-transform duration-300 ${
-                      isOpen ? "rotate-180" : ""
-                    }`}
-                  />
+                  <div className="w-8 h-8 rounded-full bg-porcelain-muted flex items-center justify-center text-midnight shrink-0 transition-transform duration-300">
+                    {isOpen ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                  </div>
                 </button>
 
                 {isOpen && (
-                  <div className="mt-3 text-xs sm:text-sm text-graphite-muted leading-relaxed pt-2 border-t border-silver/30">
-                    {faq.answer}
+                  <div className="mt-4 text-xs sm:text-sm font-sans text-graphite-muted leading-relaxed font-light pr-12 animate-in fade-in duration-300">
+                    {faq.a}
                   </div>
                 )}
               </div>
