@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useRef, useState } from "react";
-import { ArrowRight, ShieldCheck, Sparkles, Compass, CheckCircle } from "lucide-react";
+import React, { useRef, useState, useEffect } from "react";
+import { ArrowRight, ShieldCheck, Compass, CheckCircle } from "lucide-react";
 import { PublicProductDto } from "@/types/products";
 import { formatRupeesDisplay } from "@/lib/format";
 import { gsap } from "gsap";
-import { useGSAP } from "@gsap/react";
 import { FrameViewer3D, InscriptionData, CRAFTED_MESSAGES } from "./FrameViewer3D";
 
 interface HeroSectionProps {
@@ -32,43 +31,23 @@ export function HeroSection({ product, onAddToCart }: HeroSectionProps) {
 
   const priceDisplay = product ? formatRupeesDisplay(product.priceRupees) : "₹1,200.00";
 
-  // GSAP Entrance Animations
-  useGSAP(
-    () => {
-      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+  // GSAP Entrance Animations (Safe fromTo with fallback visibility)
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const elements = [
+      badgeRef.current,
+      titleRef.current,
+      subtitleRef.current,
+      specsRef.current,
+      ctaRef.current,
+    ].filter(Boolean);
 
-      tl.fromTo(
-        badgeRef.current,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.8, delay: 0.1 }
-      )
-        .fromTo(
-          titleRef.current,
-          { opacity: 0, y: 35 },
-          { opacity: 1, y: 0, duration: 1 },
-          "-=0.5"
-        )
-        .fromTo(
-          subtitleRef.current,
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.8 },
-          "-=0.6"
-        )
-        .fromTo(
-          specsRef.current,
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.8 },
-          "-=0.5"
-        )
-        .fromTo(
-          ctaRef.current,
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.8 },
-          "-=0.6"
-        );
-    },
-    { scope: containerRef }
-  );
+    gsap.fromTo(
+      elements,
+      { opacity: 0, y: 25 },
+      { opacity: 1, y: 0, duration: 0.8, stagger: 0.12, ease: "power2.out" }
+    );
+  }, []);
 
   const handleOrderClick = () => {
     onAddToCart?.();
@@ -119,7 +98,7 @@ export function HeroSection({ product, onAddToCart }: HeroSectionProps) {
           {/* LEFT: Restrained Minimal Editorial Narrative            */}
           {/* ======================================================== */}
           <div className="lg:col-span-5 flex flex-col space-y-6 pt-2">
-            <div ref={badgeRef} className="opacity-0">
+            <div ref={badgeRef}>
               <span className="inline-flex items-center gap-2 text-[10px] font-sans font-bold tracking-[0.25em] uppercase text-silver/90 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 shadow-sm">
                 <span className="w-1.5 h-1.5 rounded-full bg-cobalt animate-ping" />
                 Edition 01 • The Sacred Keepsake Frame
@@ -128,7 +107,7 @@ export function HeroSection({ product, onAddToCart }: HeroSectionProps) {
 
             <h1
               ref={titleRef}
-              className="opacity-0 font-serif text-4xl sm:text-5xl lg:text-6xl tracking-tight text-porcelain leading-[1.08] font-normal"
+              className="font-serif text-4xl sm:text-5xl lg:text-6xl tracking-tight text-porcelain leading-[1.08] font-normal"
             >
               Turn the frame.<br />
               <span className="italic font-normal text-silver/90">Reveal the blessing.</span>
@@ -136,7 +115,7 @@ export function HeroSection({ product, onAddToCart }: HeroSectionProps) {
 
             <p
               ref={subtitleRef}
-              className="opacity-0 text-silver/80 text-base sm:text-lg max-w-md font-light leading-relaxed font-sans"
+              className="text-silver/80 text-base sm:text-lg max-w-md font-light leading-relaxed font-sans"
             >
               An architectural devotional sanctuary featuring embossed pure silver relief of Sri Lakshmi & Sri Ganesha. 
               Turned on its reverse to reveal your deeply crafted, engraved brass-silver keepsake dedication.
@@ -145,7 +124,7 @@ export function HeroSection({ product, onAddToCart }: HeroSectionProps) {
             {/* Geometrical Architectural Dimension Matrix */}
             <div
               ref={specsRef}
-              className="opacity-0 grid grid-cols-2 gap-3 pt-2 text-xs font-sans text-silver/80"
+              className="grid grid-cols-2 gap-3 pt-2 text-xs font-sans text-silver/80"
             >
               <div className="p-3 rounded-[6px] bg-white/5 border border-white/10">
                 <span className="text-[9px] font-mono uppercase tracking-widest text-silver/60 block mb-1">
@@ -181,11 +160,11 @@ export function HeroSection({ product, onAddToCart }: HeroSectionProps) {
             </div>
 
             {/* Minimal High-Impact CTAs */}
-            <div ref={ctaRef} className="opacity-0 pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+            <div ref={ctaRef} className="pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
               <button
                 type="button"
                 onClick={handleOrderClick}
-                className="group inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full bg-porcelain text-midnight text-xs font-sans font-semibold tracking-widest uppercase hover:bg-silver transition-all duration-300 shadow-xl active:scale-95"
+                className="group inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full bg-porcelain text-midnight text-xs font-sans font-semibold tracking-widest uppercase hover:bg-silver transition-all duration-300 shadow-xl active:scale-95 cursor-pointer"
               >
                 <span>Order with Inscription — {priceDisplay}</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />

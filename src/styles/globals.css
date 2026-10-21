@@ -1,13 +1,36 @@
-@import "./tokens.css";
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Brand Palette - Midnight Gallery + Gift Ritual */
+  --color-midnight: #0C1B36;
+  --color-midnight-dark: #060E1D;
+  --color-midnight-light: #14284D;
+  
+  --color-porcelain: #F7F5F0;
+  --color-porcelain-pure: #FFFFFF;
+  --color-porcelain-muted: #EFECE6;
+  
+  --color-silver: #D9DFE8;
+  --color-silver-light: #EEF2F6;
+  --color-silver-dark: #A6B1C2;
+  
+  --color-cobalt: #6178FF;
+  --color-cobalt-hover: #4D64F5;
+  
+  --color-graphite: #222B3A;
+  --color-graphite-muted: #4A5568;
+
+  /* Typography Scale */
+  --font-editorial: var(--font-editorial, "Playfair Display", Georgia, serif);
+  --font-sans: var(--font-sans, "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+}
+
 @layer base {
   body {
-    background-color: var(--color-porcelain);
-    color: var(--color-graphite);
+    background-color: #F7F5F0;
+    color: #222B3A;
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -18,14 +41,64 @@
   }
 }
 
-/* Custom utility classes */
+/* Custom 3D & Animation Utilities */
 @layer utilities {
+  .preserve-3d {
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+  }
+
+  .perspective-1200 {
+    perspective: 1200px;
+    -webkit-perspective: 1200px;
+  }
+
+  .perspective-1500 {
+    perspective: 1500px;
+    -webkit-perspective: 1500px;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  .rotate-y-0 {
+    transform: rotateY(0deg);
+    -webkit-transform: rotateY(0deg);
+  }
+
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg);
+  }
+
+  .card-flip-transition {
+    transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
   .bg-midnight-gallery {
-    background-color: var(--color-midnight);
-    color: var(--color-porcelain);
+    background-color: #0C1B36;
+    color: #F7F5F0;
   }
   
   .border-silver-subtle {
     border-color: rgba(217, 223, 232, 0.4);
   }
+}
+
+/* Smooth Pulse for Sacred Focal Point */
+@keyframes sacred-glow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.02);
+  }
+}
+
+.animate-sacred-glow {
+  animation: sacred-glow 3s ease-in-out infinite;
 }

@@ -33,13 +33,13 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* 1. Announcement Bar */}
-      <AnnouncementBar />
+      {/* 1. Unified Fixed Header with Announcement Bar */}
+      <header className="fixed top-0 left-0 right-0 z-50 shadow-sm">
+        <AnnouncementBar />
+        <Header />
+      </header>
 
-      {/* 2. Fixed Header */}
-      <Header />
-
-      {/* 3. Main Content Container (with top offset for fixed header) */}
+      {/* 2. Main Content Container (with top offset for fixed header) */}
       <main className="w-full pt-[116px] bg-porcelain flex-1">
         {/* Section 1: Cinematic Midnight Hero */}
         <HeroSection product={heroProduct} />

@@ -12,7 +12,7 @@ export function Header({ cartCount = 0 }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 w-full z-50 bg-porcelain/85 backdrop-blur-md border-b border-silver/30 transition-all">
+    <div className="w-full bg-porcelain/85 backdrop-blur-md border-b border-silver/30 transition-all">
       <div className="max-w-7xl mx-auto h-20 px-6 sm:px-10 flex items-center justify-between">
         {/* Brand Wordmark */}
         <Link href="/" className="group flex flex-col">
@@ -116,6 +116,6 @@ export function Header({ cartCount = 0 }: HeaderProps) {
           </nav>
         </div>
       )}
-    </header>
+    </div>
   );
 }

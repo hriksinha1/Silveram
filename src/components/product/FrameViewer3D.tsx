@@ -3,18 +3,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import { 
   Rotate3d, 
-  Sparkles, 
   Compass, 
-  Sliders, 
   Check, 
-  Heart, 
   Feather, 
   ShieldCheck, 
-  Eye,
-  Maximize2
+  Eye
 } from "lucide-react";
 import { gsap } from "gsap";
-import { useGSAP } from "@gsap/react";
 
 export interface InscriptionData {
   recipient: string;
@@ -76,9 +71,7 @@ const GALLERY_IMAGES = [
 ];
 
 export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameViewer3DProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
-  const plaqueRef = useRef<HTMLDivElement>(null);
+  const tiltContainerRef = useRef<HTMLDivElement>(null);
   const shimmerRef = useRef<HTMLDivElement>(null);
 
   // States
@@ -92,7 +85,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
   const [message, setMessage] = useState(CRAFTED_MESSAGES[0].message);
   const [date, setDate] = useState("Diwali 2026");
 
-  // Keep parent notified
+  // Keep parent notified of inscription changes
   useEffect(() => {
     onInscriptionChange?.({
       recipient,
@@ -102,24 +95,16 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
     });
   }, [recipient, message, date, selectedThemeId, isCustomMode, onInscriptionChange]);
 
-  // Flip GSAP animation
+  // Flip Action with Shimmer Sweep Feedback
   const flipTo = (toBack: boolean) => {
     setIsFlipped(toBack);
-    if (!cardRef.current) return;
 
-    gsap.to(cardRef.current, {
-      rotationY: toBack ? 180 : 0,
-      duration: 0.9,
-      ease: "power3.inOut",
-      transformPerspective: 1400,
-    });
-
-    // Trigger plaque metallic shimmer when flipped to back
+    // If flipping to back, trigger metallic light shimmer across the plaque
     if (toBack && shimmerRef.current) {
       gsap.fromTo(
         shimmerRef.current,
         { x: "-100%", opacity: 0 },
-        { x: "200%", opacity: 0.6, duration: 1.1, delay: 0.4, ease: "power2.out" }
+        { x: "200%", opacity: 0.7, duration: 1.1, delay: 0.35, ease: "power2.out" }
       );
     }
   };
@@ -134,59 +119,47 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
     setMessage(preset.message);
     setDate(preset.date);
 
-    // If frame is not currently flipped to the back, turn it smoothly to reveal the plaque!
+    // If frame is front-facing, turn it to reveal the newly chosen plaque
     if (!isFlipped) {
       flipTo(true);
     } else if (shimmerRef.current) {
-      // Shimmer feedback
       gsap.fromTo(
         shimmerRef.current,
         { x: "-100%", opacity: 0 },
-        { x: "200%", opacity: 0.6, duration: 0.9, ease: "power2.out" }
+        { x: "200%", opacity: 0.7, duration: 0.9, ease: "power2.out" }
       );
     }
   };
 
-  // Subtle Mouse 3D Tilt on the Active Face
+  // Subtle Mouse 3D Tilt on Outer Container (Leaves Flip Card Clean)
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
+    if (!tiltContainerRef.current) return;
     const { clientX, clientY, currentTarget } = e;
     const { left, top, width, height } = currentTarget.getBoundingClientRect();
     const x = (clientX - left) / width - 0.5;
     const y = (clientY - top) / height - 0.5;
 
-    const baseRotationY = isFlipped ? 180 : 0;
-    gsap.to(cardRef.current, {
-      rotationY: baseRotationY + x * 12,
-      rotationX: -y * 12,
-      duration: 0.35,
-      ease: "power1.out",
-    });
+    tiltContainerRef.current.style.transform = `perspective(1200px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg)`;
   };
 
   const handleMouseLeave = () => {
-    if (!cardRef.current) return;
-    gsap.to(cardRef.current, {
-      rotationY: isFlipped ? 180 : 0,
-      rotationX: 0,
-      duration: 0.7,
-      ease: "power2.out",
-    });
+    if (!tiltContainerRef.current) return;
+    tiltContainerRef.current.style.transform = "perspective(1200px) rotateY(0deg) rotateX(0deg)";
   };
 
   return (
-    <div ref={containerRef} className={`w-full flex flex-col items-center ${className}`}>
+    <div className={`w-full flex flex-col items-center ${className}`}>
       {/* Top Floating Geometric Control Bar */}
       <div className="w-full max-w-lg mb-4 flex items-center justify-between text-xs font-sans px-2">
         {/* 3D Flip Toggle Pill */}
         <button
           type="button"
           onClick={toggleFlip}
-          className="group inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-porcelain transition-all active:scale-95 shadow-sm"
+          className="group inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-porcelain transition-all active:scale-95 shadow-sm cursor-pointer"
         >
           <Rotate3d className="w-4 h-4 text-silver transition-transform duration-500 group-hover:rotate-180" />
           <span className="font-medium tracking-wider uppercase text-[11px]">
-            {isFlipped ? "↺ View Sacred Front" : "↻ Turn Frame • Reveal Back Plaque"}
+            {isFlipped ? "↺ View Sacred Front" : "↻ Turn Frame • View Inscribed Back"}
           </span>
         </button>
 
@@ -194,7 +167,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
         <button
           type="button"
           onClick={() => setBlueprintMode(!blueprintMode)}
-          className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-[11px] font-sans font-medium tracking-wider uppercase transition-all border ${
+          className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-[11px] font-sans font-medium tracking-wider uppercase transition-all border cursor-pointer ${
             blueprintMode
               ? "bg-cobalt text-porcelain border-cobalt shadow-md scale-105"
               : "bg-white/5 hover:bg-white/15 text-silver/80 border-white/10"
@@ -205,28 +178,34 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
         </button>
       </div>
 
-      {/* 3D Frame Canvas */}
+      {/* Outer Tilt Container */}
       <div
-        className="relative w-full max-w-lg h-[480px] sm:h-[540px] cursor-grab active:cursor-grabbing select-none"
-        style={{ perspective: 1500 }}
+        ref={tiltContainerRef}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
+        className="w-full max-w-lg transition-transform duration-300 ease-out"
+        style={{ perspective: "1500px", WebkitPerspective: "1500px" }}
       >
-        {/* Card wrapper that rotates in 3D */}
+        {/* Inner 3D Flipping Card */}
         <div
-          ref={cardRef}
-          className="relative w-full h-full duration-100 ease-out will-change-transform rounded-[12px] shadow-[0_30px_70px_-15px_rgba(0,0,0,0.85)]"
+          className="relative w-full h-[480px] sm:h-[540px] rounded-[12px] shadow-[0_30px_70px_-15px_rgba(0,0,0,0.85)]"
           style={{
             transformStyle: "preserve-3d",
+            WebkitTransformStyle: "preserve-3d",
             transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
+            transition: "transform 0.85s cubic-bezier(0.16, 1, 0.3, 1)",
           }}
         >
           {/* ======================================================== */}
           {/* FRONT FACE: Authentic Sacred Lakshmi-Ganesh Keepsake      */}
           {/* ======================================================== */}
           <div
-            className="absolute inset-0 w-full h-full rounded-[12px] overflow-hidden bg-midnight-dark border border-white/15 backface-hidden"
-            style={{ backfaceVisibility: "hidden" }}
+            className="absolute inset-0 w-full h-full rounded-[12px] overflow-hidden bg-midnight-dark border border-white/15"
+            style={{
+              backfaceVisibility: "hidden",
+              WebkitBackfaceVisibility: "hidden",
+              transform: "rotateY(0deg)",
+            }}
           >
             {/* Authentic Product Image */}
             <img
@@ -235,7 +214,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
               className="w-full h-full object-cover object-center transition-all duration-700"
             />
 
-            {/* Subtle Acrylic Glass Reflection & Lighting Sweep */}
+            {/* Subtle Acrylic Glass Reflection */}
             <div className="absolute inset-0 bg-gradient-to-tr from-midnight/80 via-transparent to-white/10 pointer-events-none" />
 
             {/* Architectural Bevel Highlight */}
@@ -243,43 +222,43 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
 
             {/* Blueprint Overlay (Technical & Sacred Golden Ratio Geometry) */}
             {blueprintMode && (
-              <div className="absolute inset-0 z-20 pointer-events-none p-5 flex flex-col justify-between font-mono text-[10px] text-cyan-300/90 bg-midnight/40 backdrop-blur-[2px]">
+              <div className="absolute inset-0 z-20 pointer-events-none p-5 flex flex-col justify-between font-mono text-[10px] text-cyan-300 bg-midnight/60 backdrop-blur-[2px]">
                 {/* Top Dimension line */}
-                <div className="flex items-center justify-between border-b border-dashed border-cyan-400/60 pb-1">
+                <div className="flex items-center justify-between border-b border-dashed border-cyan-400/70 pb-1">
                   <span>|← 185 mm Width →|</span>
-                  <span className="tracking-widest">GOLDEN RATIO Φ = 1.618</span>
+                  <span className="tracking-widest font-bold">GOLDEN RATIO Φ = 1.618</span>
                   <span>+ [0,0]</span>
                 </div>
 
                 {/* Center Focal Crosshairs */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="relative w-40 h-40 border border-cyan-400/40 rounded-full flex items-center justify-center animate-spin-slow">
-                    <div className="w-full h-[1px] bg-cyan-400/50" />
-                    <div className="h-full w-[1px] bg-cyan-400/50 absolute" />
-                    <span className="absolute top-2 text-[9px] bg-midnight/80 px-1 text-cyan-200">
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="relative w-44 h-44 border border-cyan-400/50 rounded-full flex items-center justify-center animate-sacred-glow">
+                    <div className="w-full h-[1px] bg-cyan-400/60" />
+                    <div className="h-full w-[1px] bg-cyan-400/60 absolute" />
+                    <span className="absolute top-2 text-[9px] bg-midnight/90 px-1 text-cyan-200">
                       SACRED FOCAL POINT
                     </span>
                   </div>
                 </div>
 
                 {/* Left/Right Dimension Markers */}
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 -rotate-90 origin-left text-[9px] text-cyan-300/80">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 -rotate-90 origin-left text-[9px] text-cyan-300">
                   |← 235 mm Height →|
                 </div>
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 origin-right text-[9px] text-cyan-300/80">
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 origin-right text-[9px] text-cyan-300">
                   |← 28 mm Depth →|
                 </div>
 
                 {/* Bottom Specifications Callout */}
-                <div className="flex items-center justify-between border-t border-dashed border-cyan-400/60 pt-1 text-[9px]">
+                <div className="flex items-center justify-between border-t border-dashed border-cyan-400/70 pt-1 text-[9px]">
                   <span>LAT 28.6139° N / LONG 77.2090° E</span>
                   <span className="text-right">999 ELECTROFORM CLAD • 0.025mm DEPTH</span>
                 </div>
               </div>
             )}
 
-            {/* Front Floating Badges */}
-            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between p-3.5 rounded-[8px] bg-midnight/85 backdrop-blur-md border border-white/10 text-porcelain">
+            {/* Front Floating Pill */}
+            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between p-3.5 rounded-[8px] bg-midnight/90 backdrop-blur-md border border-white/10 text-porcelain z-10">
               <div className="flex items-center gap-2.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <div>
@@ -294,7 +273,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
               <button
                 type="button"
                 onClick={toggleFlip}
-                className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-[10px] font-sans font-medium uppercase tracking-wider text-silver flex items-center gap-1.5 transition-colors"
+                className="px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-[10px] font-sans font-medium uppercase tracking-wider text-silver flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <span>Turn Plaque</span>
                 <span className="text-xs">↻</span>
@@ -306,11 +285,12 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
           {/* BACK FACE: Architectural Inscribed Plaque & Sacred Note  */}
           {/* ======================================================== */}
           <div
-            className="absolute inset-0 w-full h-full rounded-[12px] overflow-hidden bg-[#0a0e17] border border-white/15 backface-hidden p-6 sm:p-8 flex flex-col justify-between"
+            className="absolute inset-0 w-full h-full rounded-[12px] overflow-hidden bg-[#0a0e17] border border-white/15 p-6 sm:p-8 flex flex-col justify-between"
             style={{
               backfaceVisibility: "hidden",
+              WebkitBackfaceVisibility: "hidden",
               transform: "rotateY(180deg)",
-              boxShadow: "inset 0 0 40px rgba(0,0,0,0.8)",
+              boxShadow: "inset 0 0 40px rgba(0,0,0,0.85)",
             }}
           >
             {/* Background Texture: Brushed Architectural Obsidian */}
@@ -324,7 +304,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
               }}
             />
 
-            {/* 4 Precision Corner Screws */}
+            {/* 4 Precision Corner Fasteners */}
             <div className="absolute top-3 left-3 w-3 h-3 rounded-full bg-neutral-600 border border-neutral-400/50 flex items-center justify-center shadow-inner">
               <div className="w-1.5 h-[1px] bg-neutral-900 rotate-45" />
             </div>
@@ -357,15 +337,14 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
               <button
                 type="button"
                 onClick={toggleFlip}
-                className="text-[10px] font-sans text-silver/70 hover:text-white uppercase tracking-wider flex items-center gap-1 transition-colors"
+                className="text-[10px] font-sans text-silver/80 hover:text-white uppercase tracking-wider flex items-center gap-1 transition-colors cursor-pointer"
               >
-                <span>↺ Front</span>
+                <span>↺ View Front</span>
               </button>
             </div>
 
             {/* Centerpiece: The Machined Brushed Silver Keepsake Plaque */}
             <div
-              ref={plaqueRef}
               className="relative z-10 my-auto p-6 sm:p-7 rounded-[8px] overflow-hidden shadow-[inset_0_1px_3px_rgba(255,255,255,0.9),0_12px_30px_rgba(0,0,0,0.6)] border border-slate-300"
               style={{
                 background:
@@ -394,7 +373,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
                   <div className="w-8 h-[1px] bg-slate-400/60 mx-auto mt-1" />
                 </div>
 
-                {/* Recipient Dedication (Engraved Calligraphy Style) */}
+                {/* Recipient Dedication */}
                 <h4
                   className="font-serif text-lg sm:text-xl text-slate-900 text-center font-normal tracking-wide mb-2.5"
                   style={{
@@ -427,7 +406,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
             {/* Bottom Hallmarks */}
             <div className="relative z-10 pt-3 border-t border-white/10 flex items-center justify-between text-[9px] font-mono text-silver/60 uppercase">
               <span>Pure Silver Clad • ISO Sealed</span>
-              <span className="text-emerald-400/90 flex items-center gap-1 font-sans">
+              <span className="text-emerald-400 flex items-center gap-1 font-sans">
                 <Check className="w-3 h-3" /> Inscription Included Free
               </span>
             </div>
@@ -435,7 +414,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
         </div>
       </div>
 
-      {/* Front Image Angle Switcher (When Front is Active) */}
+      {/* Front Image Angle Switcher */}
       {!isFlipped && (
         <div className="mt-4 flex items-center gap-2 overflow-x-auto pb-1 max-w-full">
           {GALLERY_IMAGES.map((img, idx) => (
@@ -443,7 +422,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
               key={img.src}
               type="button"
               onClick={() => setActiveImageIndex(idx)}
-              className={`relative w-12 h-12 rounded-[6px] overflow-hidden border transition-all duration-300 shrink-0 ${
+              className={`relative w-12 h-12 rounded-[6px] overflow-hidden border transition-all duration-300 shrink-0 cursor-pointer ${
                 activeImageIndex === idx
                   ? "border-porcelain scale-105 shadow-md ring-1 ring-porcelain"
                   : "border-white/20 opacity-60 hover:opacity-100"
@@ -459,7 +438,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
       )}
 
       {/* ======================================================== */}
-      {/* THE EMOTIONAL INSCRIPTION STUDIO (Triggering Emotion)    */}
+      {/* THE EMOTIONAL INSCRIPTION STUDIO                         */}
       {/* ======================================================== */}
       <div className="w-full max-w-xl mt-8 p-6 sm:p-7 rounded-[12px] bg-white/5 border border-white/10 backdrop-blur-md">
         <div className="flex items-center justify-between mb-4">
@@ -469,7 +448,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
               The Memory Inscription Studio
             </h3>
           </div>
-          <span className="text-[10px] font-sans font-bold tracking-widest uppercase text-silver/70 px-2.5 py-1 rounded-full bg-white/5 border border-white/10">
+          <span className="text-[10px] font-sans font-bold tracking-widest uppercase text-silver/80 px-2.5 py-1 rounded-full bg-white/5 border border-white/10">
             Crafted Behind The Frame
           </span>
         </div>
@@ -486,7 +465,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
               key={preset.id}
               type="button"
               onClick={() => handleSelectPreset(preset)}
-              className={`p-2.5 rounded-[8px] text-left transition-all duration-300 border ${
+              className={`p-2.5 rounded-[8px] text-left transition-all duration-300 border cursor-pointer ${
                 !isCustomMode && selectedThemeId === preset.id
                   ? "bg-porcelain text-midnight border-porcelain shadow-md scale-[1.02]"
                   : "bg-white/5 text-silver hover:bg-white/10 border-white/10"
@@ -511,7 +490,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
                 setIsCustomMode(true);
                 if (!isFlipped) flipTo(true);
               }}
-              className={`text-xs font-sans font-medium flex items-center gap-1.5 transition-colors ${
+              className={`text-xs font-sans font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
                 isCustomMode ? "text-porcelain underline" : "text-silver/70 hover:text-porcelain"
               }`}
             >
@@ -527,7 +506,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
 
           {/* Custom Editable Fields */}
           {isCustomMode && (
-            <div className="space-y-3 animate-in fade-in duration-300">
+            <div className="space-y-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-[10px] font-sans uppercase tracking-wider text-silver/70 block mb-1">
@@ -582,7 +561,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
             <button
               type="button"
               onClick={toggleFlip}
-              className="text-xs font-sans font-semibold tracking-wider uppercase text-porcelain hover:underline flex items-center gap-1.5"
+              className="text-xs font-sans font-semibold tracking-wider uppercase text-porcelain hover:underline flex items-center gap-1.5 cursor-pointer"
             >
               <span>{isFlipped ? "View Front Side" : "Turn to Plaque"}</span>
               <span>→</span>
