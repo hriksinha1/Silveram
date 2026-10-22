@@ -7,12 +7,15 @@ import { ShieldCheck, ArrowRight } from "lucide-react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 
+import { useCart } from "@/context/CartContext";
+
 interface MaterialitySpecsProps {
   product?: PublicProductDto;
   onAddToCart?: () => void;
 }
 
 export function MaterialitySpecs({ product, onAddToCart }: MaterialitySpecsProps) {
+  const { addToBag } = useCart();
   const containerRef = useRef<HTMLDivElement>(null);
   const priceDisplay = product ? formatRupeesDisplay(product.priceRupees) : "₹1,200.00";
 
@@ -94,7 +97,10 @@ export function MaterialitySpecs({ product, onAddToCart }: MaterialitySpecsProps
 
           <button
             type="button"
-            onClick={onAddToCart}
+            onClick={() => {
+              addToBag();
+              onAddToCart?.();
+            }}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-midnight text-porcelain text-xs font-sans font-semibold tracking-wider uppercase hover:bg-midnight-light transition-all shadow-sm whitespace-nowrap active:scale-95 cursor-pointer shrink-0"
           >
             <span>Order Keepsake Frame — {priceDisplay}</span>

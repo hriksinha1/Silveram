@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
 import "../styles/globals.css";
+import { CartProvider } from "@/context/CartContext";
+import { CartDrawer } from "@/components/cart/CartDrawer";
+import { CheckoutModal } from "@/components/cart/CheckoutModal";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -40,7 +43,11 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-porcelain text-graphite antialiased flex flex-col font-sans selection:bg-silver selection:text-midnight">
-        {children}
+        <CartProvider>
+          {children}
+          <CartDrawer />
+          <CheckoutModal />
+        </CartProvider>
       </body>
     </html>
   );

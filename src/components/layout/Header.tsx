@@ -3,13 +3,11 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { ShoppingBag, Menu, X } from "lucide-react";
+import { useCart } from "@/context/CartContext";
 
-interface HeaderProps {
-  cartCount?: number;
-}
-
-export function Header({ cartCount = 0 }: HeaderProps) {
+export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { cartCount, openCart } = useCart();
 
   return (
     <div className="w-full bg-porcelain/85 backdrop-blur-md border-b border-silver/30 transition-all">
@@ -39,6 +37,12 @@ export function Header({ cartCount = 0 }: HeaderProps) {
             Gift Ritual
           </a>
           <a
+            href="#unboxing"
+            className="hover:text-midnight transition-colors duration-200"
+          >
+            Unboxing
+          </a>
+          <a
             href="#materiality"
             className="hover:text-midnight transition-colors duration-200"
           >
@@ -52,15 +56,19 @@ export function Header({ cartCount = 0 }: HeaderProps) {
           </a>
         </nav>
 
-        {/* Minimal Action Item: Single Clean Cart Trigger */}
+        {/* Action Item: Real Slide-Over Cart Trigger */}
         <div className="flex items-center gap-4">
-          <a
-            href="#hero"
-            className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-midnight text-porcelain text-[11px] font-sans font-medium tracking-widest uppercase hover:bg-midnight-light transition-all shadow-sm"
+          <button
+            type="button"
+            onClick={openCart}
+            className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-midnight text-porcelain text-[11px] font-sans font-medium tracking-widest uppercase hover:bg-midnight-light transition-all shadow-sm cursor-pointer"
           >
             <ShoppingBag className="w-3.5 h-3.5 text-silver" />
             <span>Bag ({cartCount})</span>
-          </a>
+            {cartCount > 0 && (
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            )}
+          </button>
 
           {/* Mobile Menu Icon */}
           <button
@@ -91,6 +99,13 @@ export function Header({ cartCount = 0 }: HeaderProps) {
               className="py-1 hover:text-midnight"
             >
               Gift Ritual
+            </a>
+            <a
+              href="#unboxing"
+              onClick={() => setMobileMenuOpen(false)}
+              className="py-1 hover:text-midnight"
+            >
+              Unboxing Suite
             </a>
             <a
               href="#materiality"

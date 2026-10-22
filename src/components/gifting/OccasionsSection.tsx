@@ -5,6 +5,8 @@ import { ArrowUpRight, Check, Sparkles } from "lucide-react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 
+import { useCart, RIBBON_OPTIONS, RibbonOption } from "@/context/CartContext";
+
 interface OccasionsSectionProps {
   onSelectOccasion?: (occasionName: string) => void;
 }
@@ -36,15 +38,8 @@ const occasions = [
   },
 ];
 
-const ribbons = [
-  { name: "Imperial Navy", hex: "#0C1B36", meaning: "Devotion" },
-  { name: "Kashi Crimson", hex: "#991B1B", meaning: "Auspiciousness" },
-  { name: "Sacred Saffron", hex: "#D97706", meaning: "Divinity" },
-  { name: "Temple Pearl", hex: "#F8FAFC", meaning: "Purity" },
-];
-
 export function OccasionsSection({ onSelectOccasion }: OccasionsSectionProps) {
-  const [selectedRibbon, setSelectedRibbon] = useState("Imperial Navy");
+  const { activeRibbon, setActiveRibbon, addToBag } = useCart();
   const containerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
 
@@ -109,7 +104,10 @@ export function OccasionsSection({ onSelectOccasion }: OccasionsSectionProps) {
           {occasions.map((occ) => (
             <div
               key={occ.number}
-              onClick={() => onSelectOccasion?.(occ.title)}
+              onClick={() => {
+                addToBag();
+                onSelectOccasion?.(occ.title);
+              }}
               className="group cursor-pointer flex flex-col bg-white rounded-[8px] overflow-hidden border border-silver/40 hover:border-midnight/40 transition-all duration-500 shadow-sm hover:shadow-2xl relative"
             >
               {/* Corner Coordinate Crosshairs */}
@@ -175,13 +173,13 @@ export function OccasionsSection({ onSelectOccasion }: OccasionsSectionProps) {
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-3">
-            {ribbons.map((ribbon) => (
+            {RIBBON_OPTIONS.map((ribbon) => (
               <button
                 key={ribbon.name}
                 type="button"
-                onClick={() => setSelectedRibbon(ribbon.name)}
-                className={`px-4 py-2.5 rounded-full text-xs font-sans font-medium flex items-center gap-2.5 transition-all duration-300 border ${
-                  selectedRibbon === ribbon.name
+                onClick={() => setActiveRibbon(ribbon)}
+                className={`px-4 py-2.5 rounded-full text-xs font-sans font-medium flex items-center gap-2.5 transition-all duration-300 border cursor-pointer ${
+                  activeRibbon.name === ribbon.name
                     ? "bg-midnight text-porcelain border-midnight shadow-md scale-105"
                     : "bg-porcelain text-graphite hover:bg-silver/30 border-silver/40"
                 }`}
@@ -192,7 +190,7 @@ export function OccasionsSection({ onSelectOccasion }: OccasionsSectionProps) {
                 />
                 <span className="font-medium">{ribbon.name}</span>
                 <span className="text-[10px] opacity-70">({ribbon.meaning})</span>
-                {selectedRibbon === ribbon.name && (
+                {activeRibbon.name === ribbon.name && (
                   <Check className="w-3 h-3 text-silver ml-0.5" />
                 )}
               </button>

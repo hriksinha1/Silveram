@@ -7,12 +7,15 @@ import { formatRupeesDisplay } from "@/lib/format";
 import { gsap } from "gsap";
 import { FrameViewer3D, InscriptionData, CRAFTED_MESSAGES } from "./FrameViewer3D";
 
+import { useCart } from "@/context/CartContext";
+
 interface HeroSectionProps {
   product?: PublicProductDto;
   onAddToCart?: () => void;
 }
 
 export function HeroSection({ product, onAddToCart }: HeroSectionProps) {
+  const { addToBag } = useCart();
   const containerRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -50,9 +53,8 @@ export function HeroSection({ product, onAddToCart }: HeroSectionProps) {
   }, []);
 
   const handleOrderClick = () => {
+    addToBag();
     onAddToCart?.();
-    setAddedToast(true);
-    setTimeout(() => setAddedToast(false), 4000);
   };
 
   return (

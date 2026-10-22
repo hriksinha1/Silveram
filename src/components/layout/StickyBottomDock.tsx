@@ -5,12 +5,15 @@ import { ArrowRight } from "lucide-react";
 import { PublicProductDto } from "@/types/products";
 import { formatRupeesDisplay } from "@/lib/format";
 
+import { useCart } from "@/context/CartContext";
+
 interface StickyBottomDockProps {
   product?: PublicProductDto;
   onAddToCart?: () => void;
 }
 
 export function StickyBottomDock({ product, onAddToCart }: StickyBottomDockProps) {
+  const { addToBag } = useCart();
   const [visible, setVisible] = useState(false);
   const priceDisplay = product ? formatRupeesDisplay(product.priceRupees) : "₹1,200.00";
 
@@ -53,8 +56,11 @@ export function StickyBottomDock({ product, onAddToCart }: StickyBottomDockProps
 
         <button
           type="button"
-          onClick={onAddToCart}
-          className="px-5 py-2.5 rounded-full bg-porcelain text-midnight text-xs font-sans font-semibold tracking-wider uppercase hover:bg-silver transition-all flex items-center gap-2 shrink-0 shadow-sm active:scale-95"
+          onClick={() => {
+            addToBag();
+            onAddToCart?.();
+          }}
+          className="px-5 py-2.5 rounded-full bg-porcelain text-midnight text-xs font-sans font-semibold tracking-wider uppercase hover:bg-silver transition-all flex items-center gap-2 shrink-0 shadow-sm active:scale-95 cursor-pointer"
         >
           <span>Order</span>
           <ArrowRight className="w-3.5 h-3.5" />

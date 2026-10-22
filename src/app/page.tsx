@@ -5,6 +5,7 @@ import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { Header } from "@/components/layout/Header";
 import { HeroSection } from "@/components/product/HeroSection";
 import { OccasionsSection } from "@/components/gifting/OccasionsSection";
+import { UnboxingSuite } from "@/components/gifting/UnboxingSuite";
 import { MaterialitySpecs } from "@/components/product/MaterialitySpecs";
 import { PincodeTransitEstimator } from "@/components/commerce/PincodeTransitEstimator";
 import { CorporateGiftingSection } from "@/components/corporate/CorporateGiftingSection";
@@ -47,7 +48,10 @@ export default async function HomePage() {
         {/* Section 2: Intentional Gifting Occasions */}
         <OccasionsSection />
 
-        {/* Section 3: Honest Materiality & Specs */}
+        {/* Section 3: The Ceremonial Unboxing Suite */}
+        <UnboxingSuite />
+
+        {/* Section 4: Honest Materiality & Specs */}
         <MaterialitySpecs product={heroProduct} />
 
         {/* Section 4: Real-Time Pincode Transit Estimator */}

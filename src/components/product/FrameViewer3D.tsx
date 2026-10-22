@@ -7,9 +7,11 @@ import {
   Check, 
   Feather, 
   ShieldCheck, 
-  Eye
+  Sparkles,
+  MoveHorizontal
 } from "lucide-react";
 import { gsap } from "gsap";
+import { useCart } from "@/context/CartContext";
 
 export interface InscriptionData {
   recipient: string;
@@ -71,8 +73,11 @@ const GALLERY_IMAGES = [
 ];
 
 export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameViewer3DProps) {
+  const { activeRibbon, setInscription: setContextInscription } = useCart();
+
   const tiltContainerRef = useRef<HTMLDivElement>(null);
   const shimmerRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef<number | null>(null);
 
   // States
   const [isFlipped, setIsFlipped] = useState(false);
@@ -84,16 +89,19 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
   const [recipient, setRecipient] = useState("Aarav & Meera");
   const [message, setMessage] = useState(CRAFTED_MESSAGES[0].message);
   const [date, setDate] = useState("Diwali 2026");
+  const [mouseTilt, setMouseTilt] = useState({ x: 0, y: 0 });
 
-  // Keep parent notified of inscription changes
+  // Sync with CartContext & Parent
   useEffect(() => {
-    onInscriptionChange?.({
+    const data: InscriptionData = {
       recipient,
       message,
       date,
       themeTitle: isCustomMode ? "Custom Inscription" : (CRAFTED_MESSAGES.find(m => m.id === selectedThemeId)?.title || "Crafted Dedication")
-    });
-  }, [recipient, message, date, selectedThemeId, isCustomMode, onInscriptionChange]);
+    };
+    onInscriptionChange?.(data);
+    setContextInscription?.(data);
+  }, [recipient, message, date, selectedThemeId, isCustomMode, onInscriptionChange, setContextInscription]);
 
   // Flip Action with Shimmer Sweep Feedback
   const flipTo = (toBack: boolean) => {
@@ -111,6 +119,21 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
 
   const toggleFlip = () => flipTo(!isFlipped);
 
+  // Mobile Thumb Swipe Gesture Handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchEndX - touchStartX.current;
+    if (Math.abs(diff) > 40) {
+      toggleFlip();
+    }
+    touchStartX.current = null;
+  };
+
   // Handle Preset Message Selection
   const handleSelectPreset = (preset: typeof CRAFTED_MESSAGES[0]) => {
     setSelectedThemeId(preset.id);
@@ -119,7 +142,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
     setMessage(preset.message);
     setDate(preset.date);
 
-    // If frame is front-facing, turn it to reveal the newly chosen plaque
+    // Turn frame to back to showcase the plaque
     if (!isFlipped) {
       flipTo(true);
     } else if (shimmerRef.current) {
@@ -131,7 +154,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
     }
   };
 
-  // Subtle Mouse 3D Tilt on Outer Container (Leaves Flip Card Clean)
+  // Subtle Mouse 3D Tilt with Specular Glint Position Tracking
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!tiltContainerRef.current) return;
     const { clientX, clientY, currentTarget } = e;
@@ -139,11 +162,13 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
     const x = (clientX - left) / width - 0.5;
     const y = (clientY - top) / height - 0.5;
 
+    setMouseTilt({ x, y });
     tiltContainerRef.current.style.transform = `perspective(1200px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg)`;
   };
 
   const handleMouseLeave = () => {
     if (!tiltContainerRef.current) return;
+    setMouseTilt({ x: 0, y: 0 });
     tiltContainerRef.current.style.transform = "perspective(1200px) rotateY(0deg) rotateX(0deg)";
   };
 
@@ -178,12 +203,14 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
         </button>
       </div>
 
-      {/* Outer Tilt Container */}
+      {/* Outer Tilt & Swipe Container */}
       <div
         ref={tiltContainerRef}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
-        className="w-full max-w-lg transition-transform duration-300 ease-out"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        className="w-full max-w-lg transition-transform duration-300 ease-out select-none"
         style={{ perspective: "1500px", WebkitPerspective: "1500px" }}
       >
         {/* Inner 3D Flipping Card */}
@@ -214,13 +241,31 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
               className="w-full h-full object-cover object-center transition-all duration-700"
             />
 
-            {/* Subtle Acrylic Glass Reflection */}
+            {/* Specular Diagonal Glass Glint (shifts with mouse movement) */}
+            <div 
+              className="absolute inset-0 pointer-events-none opacity-40 transition-transform duration-300 ease-out"
+              style={{
+                background: "linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.3) 48%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0.3) 52%, transparent 65%)",
+                transform: `translateX(${mouseTilt.x * 60}px) translateY(${mouseTilt.y * 60}px)`,
+              }}
+            />
+
+            {/* Ambient Base Shadow & Acrylic Glass Tint */}
             <div className="absolute inset-0 bg-gradient-to-tr from-midnight/80 via-transparent to-white/10 pointer-events-none" />
 
             {/* Architectural Bevel Highlight */}
             <div className="absolute inset-0 rounded-[12px] border border-white/20 pointer-events-none shadow-[inset_0_1px_3px_rgba(255,255,255,0.4)]" />
 
-            {/* Blueprint Overlay (Technical & Sacred Golden Ratio Geometry) */}
+            {/* Top Active Ribbon Indicator Badge */}
+            <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-midnight/85 backdrop-blur-md border border-white/20 text-[10px] font-sans text-porcelain shadow-lg">
+              <span 
+                className="w-2.5 h-2.5 rounded-full border border-white/40 shrink-0 shadow-sm"
+                style={{ backgroundColor: activeRibbon.hex }}
+              />
+              <span className="font-medium tracking-wide uppercase">{activeRibbon.name} Ribbon</span>
+            </div>
+
+            {/* Blueprint Overlay */}
             {blueprintMode && (
               <div className="absolute inset-0 z-20 pointer-events-none p-5 flex flex-col justify-between font-mono text-[10px] text-cyan-300 bg-midnight/60 backdrop-blur-[2px]">
                 {/* Top Dimension line */}
@@ -258,7 +303,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
             )}
 
             {/* Front Floating Pill */}
-            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between p-3.5 rounded-[8px] bg-midnight/90 backdrop-blur-md border border-white/10 text-porcelain z-10">
+            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between p-3.5 rounded-[8px] bg-midnight/90 backdrop-blur-md border border-white/10 text-porcelain z-10 shadow-lg">
               <div className="flex items-center gap-2.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <div>
@@ -282,7 +327,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
           </div>
 
           {/* ======================================================== */}
-          {/* BACK FACE: Architectural Inscribed Plaque & Sacred Note  */}
+          {/* BACK FACE: Architectural Inscribed Plaque & Easel Stand  */}
           {/* ======================================================== */}
           <div
             className="absolute inset-0 w-full h-full rounded-[12px] overflow-hidden bg-[#0a0e17] border border-white/15 p-6 sm:p-8 flex flex-col justify-between"
@@ -414,6 +459,27 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
         </div>
       </div>
 
+      {/* Dynamic Tabletop Surface & Contact Shadow */}
+      <div className="relative w-full max-w-md h-10 -mt-2 flex flex-col items-center justify-start pointer-events-none">
+        {/* Tabletop Ground Horizon Line */}
+        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-silver/25 to-transparent" />
+        
+        {/* Contact Shadow beneath the frame */}
+        <div 
+          className="w-4/5 h-4 rounded-full bg-black/75 blur-md transition-all duration-700 -mt-1"
+          style={{
+            transform: isFlipped ? "scaleX(0.85) scaleY(0.7)" : "scaleX(1) scaleY(1)",
+            opacity: isFlipped ? 0.8 : 0.65,
+          }}
+        />
+
+        {/* Swipe Hint on Mobile */}
+        <div className="sm:hidden flex items-center gap-1 text-[9px] font-mono text-silver/60 uppercase tracking-widest mt-1">
+          <MoveHorizontal className="w-3 h-3 text-silver/60 animate-pulse" />
+          <span>Swipe horizontally with thumb to turn</span>
+        </div>
+      </div>
+
       {/* Front Image Angle Switcher */}
       {!isFlipped && (
         <div className="mt-4 flex items-center gap-2 overflow-x-auto pb-1 max-w-full">
@@ -440,7 +506,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
       {/* ======================================================== */}
       {/* THE EMOTIONAL INSCRIPTION STUDIO                         */}
       {/* ======================================================== */}
-      <div className="w-full max-w-xl mt-8 p-6 sm:p-7 rounded-[12px] bg-white/5 border border-white/10 backdrop-blur-md">
+      <div className="w-full max-w-xl mt-6 p-6 sm:p-7 rounded-[12px] bg-white/5 border border-white/10 backdrop-blur-md">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Feather className="w-4 h-4 text-silver" />
