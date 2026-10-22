@@ -6,6 +6,8 @@ import { PublicProductDto } from "@/types/products";
 import { formatRupeesDisplay } from "@/lib/format";
 
 import { useCart } from "@/context/CartContext";
+import { useLanguage } from "@/context/LanguageContext";
+import { useSound } from "@/context/SoundContext";
 
 interface StickyBottomDockProps {
   product?: PublicProductDto;
@@ -14,6 +16,8 @@ interface StickyBottomDockProps {
 
 export function StickyBottomDock({ product, onAddToCart }: StickyBottomDockProps) {
   const { addToBag } = useCart();
+  const { locale, t } = useLanguage();
+  const { playClick } = useSound();
   const [visible, setVisible] = useState(false);
   const priceDisplay = product ? formatRupeesDisplay(product.priceRupees) : "₹1,200.00";
 
@@ -46,10 +50,10 @@ export function StickyBottomDock({ product, onAddToCart }: StickyBottomDockProps
           </div>
           <div>
             <span className="text-xs font-serif font-normal text-porcelain block">
-              The Keepsake Frame
+              {locale === "hi" ? "सैक्रेड कीपसेक फ्रेम" : "The Keepsake Frame"}
             </span>
             <span className="text-[10px] font-sans text-silver/70">
-              {priceDisplay} • Free Express Delivery
+              {priceDisplay} • {locale === "hi" ? "निःशुल्क एक्सप्रेस डिलीवरी" : "Free Express Delivery"}
             </span>
           </div>
         </div>
@@ -57,12 +61,13 @@ export function StickyBottomDock({ product, onAddToCart }: StickyBottomDockProps
         <button
           type="button"
           onClick={() => {
+            playClick();
             addToBag();
             onAddToCart?.();
           }}
           className="px-5 py-2.5 rounded-full bg-porcelain text-midnight text-xs font-sans font-semibold tracking-wider uppercase hover:bg-silver transition-all flex items-center gap-2 shrink-0 shadow-sm active:scale-95 cursor-pointer"
         >
-          <span>Order</span>
+          <span>{locale === "hi" ? "ऑर्डर करें" : "Order"}</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>

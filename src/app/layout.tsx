@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
 import "../styles/globals.css";
 import { CartProvider } from "@/context/CartContext";
+import { LanguageProvider } from "@/context/LanguageContext";
+import { SoundProvider } from "@/context/SoundContext";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { CheckoutModal } from "@/components/cart/CheckoutModal";
 
@@ -43,11 +45,15 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-porcelain text-graphite antialiased flex flex-col font-sans selection:bg-silver selection:text-midnight">
-        <CartProvider>
-          {children}
-          <CartDrawer />
-          <CheckoutModal />
-        </CartProvider>
+        <LanguageProvider>
+          <SoundProvider>
+            <CartProvider>
+              {children}
+              <CartDrawer />
+              <CheckoutModal />
+            </CartProvider>
+          </SoundProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

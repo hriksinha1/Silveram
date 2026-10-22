@@ -3,9 +3,13 @@
 import React from "react";
 import { ShieldCheck, Sparkles, Award, CheckCircle, PackageCheck, Eye } from "lucide-react";
 import { useCart, RIBBON_OPTIONS } from "@/context/CartContext";
+import { useLanguage } from "@/context/LanguageContext";
+import { useSound } from "@/context/SoundContext";
 
 export function UnboxingSuite() {
   const { activeRibbon, setActiveRibbon } = useCart();
+  const { locale, t } = useLanguage();
+  const { playRustle } = useSound();
 
   return (
     <section id="unboxing" className="w-full bg-midnight text-porcelain py-24 sm:py-32 px-6 sm:px-10 border-b border-silver/15 relative overflow-hidden">
@@ -26,17 +30,16 @@ export function UnboxingSuite() {
         <div className="max-w-2xl mb-16">
           <div className="flex items-center gap-3 mb-3">
             <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-silver/70 font-semibold">
-              + SECTION 04 // THE UNBOXING RITUAL
+              {t.unboxingBadge}
             </span>
             <div className="h-[1px] w-12 bg-silver/30" />
           </div>
 
           <h2 className="font-serif text-3xl sm:text-5xl text-porcelain font-normal leading-tight">
-            Every gift should feel like a ceremony.
+            {t.unboxingTitle}
           </h2>
           <p className="text-sm font-sans text-silver/70 mt-3 font-light leading-relaxed max-w-lg">
-            Unboxing is half the memory. Every Silveram keepsake arrives in our sealed rigid presentation box, 
-            tied with your choice of ceremonial silk ribbon and accompanied by our serialized Certificate of Authenticity.
+            {t.unboxingDesc}
           </p>
         </div>
 
@@ -87,14 +90,17 @@ export function UnboxingSuite() {
             {/* Ribbon Interactive Switcher Bar */}
             <div className="w-full max-w-md mt-6 p-4 rounded-[8px] bg-white/5 border border-white/10 backdrop-blur-sm">
               <span className="text-[10px] font-mono uppercase tracking-widest text-silver/60 block mb-2.5">
-                SELECT PACKAGING RIBBON:
+                {t.ribbonSelectTitle}
               </span>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {RIBBON_OPTIONS.map((ribbon) => (
                   <button
                     key={ribbon.name}
                     type="button"
-                    onClick={() => setActiveRibbon(ribbon)}
+                    onClick={() => {
+                      playRustle();
+                      setActiveRibbon(ribbon);
+                    }}
                     className={`p-2 rounded-[6px] border text-left flex items-center gap-2 transition-all cursor-pointer ${
                       activeRibbon.name === ribbon.name
                         ? "bg-porcelain text-midnight border-porcelain shadow-md scale-105"

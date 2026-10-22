@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { gsap } from "gsap";
 import { useCart } from "@/context/CartContext";
+import { useLanguage } from "@/context/LanguageContext";
+import { useSound } from "@/context/SoundContext";
 
 export interface InscriptionData {
   recipient: string;
@@ -74,6 +76,8 @@ const GALLERY_IMAGES = [
 
 export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameViewer3DProps) {
   const { activeRibbon, setInscription: setContextInscription } = useCart();
+  const { locale, t, presets } = useLanguage();
+  const { playChime, playClick } = useSound();
 
   const tiltContainerRef = useRef<HTMLDivElement>(null);
   const shimmerRef = useRef<HTMLDivElement>(null);
@@ -86,10 +90,22 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
   const [selectedThemeId, setSelectedThemeId] = useState("blessing");
   const [isCustomMode, setIsCustomMode] = useState(false);
 
-  const [recipient, setRecipient] = useState("Aarav & Meera");
-  const [message, setMessage] = useState(CRAFTED_MESSAGES[0].message);
-  const [date, setDate] = useState("Diwali 2026");
+  const [recipient, setRecipient] = useState(presets[0]?.recipient || "Aarav & Meera");
+  const [message, setMessage] = useState(presets[0]?.message || "");
+  const [date, setDate] = useState(presets[0]?.date || "Diwali 2026");
   const [mouseTilt, setMouseTilt] = useState({ x: 0, y: 0 });
+
+  // Update preset text when language switches (if user hasn't typed custom message)
+  useEffect(() => {
+    if (!isCustomMode) {
+      const current = presets.find((p) => p.id === selectedThemeId) || presets[0];
+      if (current) {
+        setRecipient(current.recipient);
+        setMessage(current.message);
+        setDate(current.date);
+      }
+    }
+  }, [locale, presets, selectedThemeId, isCustomMode]);
 
   // Sync with CartContext & Parent
   useEffect(() => {
@@ -97,15 +113,18 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
       recipient,
       message,
       date,
-      themeTitle: isCustomMode ? "Custom Inscription" : (CRAFTED_MESSAGES.find(m => m.id === selectedThemeId)?.title || "Crafted Dedication")
+      themeTitle: isCustomMode
+        ? (locale === "hi" ? "व्यक्तिगत संदेश" : "Custom Inscription")
+        : (presets.find((m) => m.id === selectedThemeId)?.title || "Crafted Dedication"),
     };
     onInscriptionChange?.(data);
     setContextInscription?.(data);
-  }, [recipient, message, date, selectedThemeId, isCustomMode, onInscriptionChange, setContextInscription]);
+  }, [recipient, message, date, selectedThemeId, isCustomMode, locale, presets, onInscriptionChange, setContextInscription]);
 
-  // Flip Action with Shimmer Sweep Feedback
+  // Flip Action with Shimmer Sweep Feedback & Subtle Metallic Chime
   const flipTo = (toBack: boolean) => {
     setIsFlipped(toBack);
+    playChime();
 
     // If flipping to back, trigger metallic light shimmer across the plaque
     if (toBack && shimmerRef.current) {
@@ -134,8 +153,9 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
     touchStartX.current = null;
   };
 
-  // Handle Preset Message Selection
-  const handleSelectPreset = (preset: typeof CRAFTED_MESSAGES[0]) => {
+  // Handle Preset Message Selection with Harmonic Chime
+  const handleSelectPreset = (preset: typeof presets[0]) => {
+    playChime();
     setSelectedThemeId(preset.id);
     setIsCustomMode(false);
     setRecipient(preset.recipient);
@@ -184,14 +204,17 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
         >
           <Rotate3d className="w-4 h-4 text-silver transition-transform duration-500 group-hover:rotate-180" />
           <span className="font-medium tracking-wider uppercase text-[11px]">
-            {isFlipped ? "↺ View Sacred Front" : "↻ Turn Frame • View Inscribed Back"}
+            {isFlipped ? t.turnFrameFront : t.turnFrameBack}
           </span>
         </button>
 
         {/* Geometric Blueprint Mode Toggle */}
         <button
           type="button"
-          onClick={() => setBlueprintMode(!blueprintMode)}
+          onClick={() => {
+            playClick();
+            setBlueprintMode(!blueprintMode);
+          }}
           className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-[11px] font-sans font-medium tracking-wider uppercase transition-all border cursor-pointer ${
             blueprintMode
               ? "bg-cobalt text-porcelain border-cobalt shadow-md scale-105"
@@ -199,7 +222,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
           }`}
         >
           <Compass className="w-3.5 h-3.5" />
-          <span>{blueprintMode ? "Blueprint: Active" : "Blueprint Mode"}</span>
+          <span>{blueprintMode ? t.blueprintOn : (locale === "hi" ? "ब्लूप्रिंट मोड" : "Blueprint Mode")}</span>
         </button>
       </div>
 
@@ -487,7 +510,10 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
             <button
               key={img.src}
               type="button"
-              onClick={() => setActiveImageIndex(idx)}
+              onClick={() => {
+                playClick();
+                setActiveImageIndex(idx);
+              }}
               className={`relative w-12 h-12 rounded-[6px] overflow-hidden border transition-all duration-300 shrink-0 cursor-pointer ${
                 activeImageIndex === idx
                   ? "border-porcelain scale-105 shadow-md ring-1 ring-porcelain"
@@ -498,7 +524,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
             </button>
           ))}
           <span className="text-[10px] font-sans text-silver/60 uppercase tracking-widest pl-2">
-            Angle {activeImageIndex + 1}/5
+            {locale === "hi" ? "कोण" : "Angle"} {activeImageIndex + 1}/5
           </span>
         </div>
       )}
@@ -511,22 +537,21 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
           <div className="flex items-center gap-2">
             <Feather className="w-4 h-4 text-silver" />
             <h3 className="font-serif text-lg text-porcelain font-normal">
-              The Memory Inscription Studio
+              {t.inscriptionStudioTitle}
             </h3>
           </div>
           <span className="text-[10px] font-sans font-bold tracking-widest uppercase text-silver/80 px-2.5 py-1 rounded-full bg-white/5 border border-white/10">
-            Crafted Behind The Frame
+            {locale === "hi" ? "फ्रेम के पीछे उकेरा गया" : "Crafted Behind The Frame"}
           </span>
         </div>
 
         <p className="text-xs font-sans text-silver/70 mb-5 leading-relaxed font-light">
-          Every Silveram frame is finished on the reverse with an architectural brushed silver plaque. 
-          Choose a crafted verse of blessings or compose your own personal words.
+          {t.inscriptionStudioDesc}
         </p>
 
         {/* Emotion Preset Chips */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-5">
-          {CRAFTED_MESSAGES.map((preset) => (
+          {presets.map((preset) => (
             <button
               key={preset.id}
               type="button"
@@ -553,6 +578,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
             <button
               type="button"
               onClick={() => {
+                playClick();
                 setIsCustomMode(true);
                 if (!isFlipped) flipTo(true);
               }}
@@ -560,7 +586,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
                 isCustomMode ? "text-porcelain underline" : "text-silver/70 hover:text-porcelain"
               }`}
             >
-              <span>✍️ Compose Custom Words</span>
+              <span>{locale === "hi" ? "✍️ अपना व्यक्तिगत संदेश लिखें" : "✍️ Compose Custom Words"}</span>
             </button>
 
             {isCustomMode && (
@@ -576,26 +602,26 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-[10px] font-sans uppercase tracking-wider text-silver/70 block mb-1">
-                    Recipient / Inscribed For
+                    {t.recipientLabel}
                   </label>
                   <input
                     type="text"
                     value={recipient}
                     onChange={(e) => setRecipient(e.target.value)}
-                    placeholder="e.g. For Aarav & Diya"
+                    placeholder={locale === "hi" ? "उदा. पूज्य माताजी एवं पिताजी" : "e.g. For Aarav & Diya"}
                     maxLength={32}
                     className="w-full px-3.5 py-2 rounded-[6px] bg-white/10 border border-white/20 text-porcelain text-xs font-sans focus:outline-none focus:border-silver placeholder:text-silver/40"
                   />
                 </div>
                 <div>
                   <label className="text-[10px] font-sans uppercase tracking-wider text-silver/70 block mb-1">
-                    Auspicious Date / Milestone
+                    {t.dateLabel}
                   </label>
                   <input
                     type="text"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    placeholder="e.g. Diwali 2026"
+                    placeholder={locale === "hi" ? "उदा. दीपावली 2026" : "e.g. Diwali 2026"}
                     maxLength={28}
                     className="w-full px-3.5 py-2 rounded-[6px] bg-white/10 border border-white/20 text-porcelain text-xs font-sans focus:outline-none focus:border-silver placeholder:text-silver/40"
                   />
@@ -604,14 +630,14 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
 
               <div>
                 <label className="text-[10px] font-sans uppercase tracking-wider text-silver/70 block mb-1">
-                  Heartfelt Blessing or Dedication (Max 140 Chars)
+                  {t.messageLabel} (Max 140 Chars)
                 </label>
                 <textarea
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   maxLength={140}
                   rows={3}
-                  placeholder="Type your heartfelt blessing here..."
+                  placeholder={locale === "hi" ? "अपना पावन संदेश अथवा आशीर्वाद यहाँ लिखें..." : "Type your heartfelt blessing here..."}
                   className="w-full px-3.5 py-2.5 rounded-[6px] bg-white/10 border border-white/20 text-porcelain text-xs font-serif italic focus:outline-none focus:border-silver placeholder:text-silver/40 resize-none leading-relaxed"
                 />
               </div>
@@ -621,7 +647,9 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
           {/* Action to View on Plaque */}
           <div className="mt-4 flex items-center justify-between">
             <span className="text-[11px] font-sans text-silver/60">
-              {isFlipped ? "✦ Live preview visible on plaque above" : "✦ Turn frame to preview on plaque"}
+              {isFlipped
+                ? (locale === "hi" ? "✦ पट्टिका पर लाइव पूर्वावलोकन सक्रिय है" : "✦ Live preview visible on plaque above")
+                : (locale === "hi" ? "✦ पट्टिका देखने के लिए फ्रेम घुमाएँ" : "✦ Turn frame to preview on plaque")}
             </span>
 
             <button
@@ -629,7 +657,7 @@ export function FrameViewer3D({ onInscriptionChange, className = "" }: FrameView
               onClick={toggleFlip}
               className="text-xs font-sans font-semibold tracking-wider uppercase text-porcelain hover:underline flex items-center gap-1.5 cursor-pointer"
             >
-              <span>{isFlipped ? "View Front Side" : "Turn to Plaque"}</span>
+              <span>{isFlipped ? (locale === "hi" ? "मुख्य भाग देखें" : "View Front Side") : (locale === "hi" ? "पट्टिका देखें" : "Turn to Plaque")}</span>
               <span>→</span>
             </button>
           </div>

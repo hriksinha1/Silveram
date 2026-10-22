@@ -16,6 +16,8 @@ import {
   Lock
 } from "lucide-react";
 import { useCart, RIBBON_OPTIONS, RibbonOption } from "@/context/CartContext";
+import { useSound } from "@/context/SoundContext";
+import { useLanguage } from "@/context/LanguageContext";
 
 export function CartDrawer() {
   const { 
@@ -32,6 +34,9 @@ export function CartDrawer() {
     openCheckout
   } = useCart();
 
+  const { playRustle, playChime, playClick } = useSound();
+  const { locale, t } = useLanguage();
+
   const [previewFace, setPreviewFace] = useState<"front" | "back">("front");
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -44,6 +49,7 @@ export function CartDrawer() {
       alert("Please upload an image file (JPEG, PNG, WebP).");
       return;
     }
+    playClick();
     const previewUrl = URL.createObjectURL(file);
     const fileSize = (file.size / (1024 * 1024)).toFixed(1) + " MB";
     setUploadedPhoto({
@@ -116,11 +122,14 @@ export function CartDrawer() {
                 {/* Toggle Front / Rear Plaque Preview */}
                 <button
                   type="button"
-                  onClick={() => setPreviewFace(previewFace === "front" ? "back" : "front")}
+                  onClick={() => {
+                    playChime();
+                    setPreviewFace(previewFace === "front" ? "back" : "front");
+                  }}
                   className="inline-flex items-center gap-1.5 text-[10px] font-sans text-graphite-muted hover:text-midnight font-medium transition-colors cursor-pointer"
                 >
                   <Rotate3d className="w-3.5 h-3.5 text-cobalt" />
-                  <span>{previewFace === "front" ? "View Engraved Plaque" : "View Sacred Front"}</span>
+                  <span>{previewFace === "front" ? (locale === "hi" ? "उत्कीर्ण पट्टिका देखें" : "View Engraved Plaque") : (locale === "hi" ? "पवित्र मुख्य भाग देखें" : "View Sacred Front")}</span>
                 </button>
               </div>
 
@@ -337,7 +346,10 @@ export function CartDrawer() {
                   <button
                     key={ribbon.name}
                     type="button"
-                    onClick={() => setActiveRibbon(ribbon)}
+                    onClick={() => {
+                      playRustle();
+                      setActiveRibbon(ribbon);
+                    }}
                     className={`p-2.5 rounded-[6px] text-left border flex items-center gap-2.5 transition-all cursor-pointer ${
                       activeRibbon.name === ribbon.name
                         ? "bg-midnight text-porcelain border-midnight shadow-sm scale-[1.02]"

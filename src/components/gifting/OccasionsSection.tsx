@@ -6,6 +6,8 @@ import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 
 import { useCart, RIBBON_OPTIONS, RibbonOption } from "@/context/CartContext";
+import { useSound } from "@/context/SoundContext";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface OccasionsSectionProps {
   onSelectOccasion?: (occasionName: string) => void;
@@ -40,6 +42,8 @@ const occasions = [
 
 export function OccasionsSection({ onSelectOccasion }: OccasionsSectionProps) {
   const { activeRibbon, setActiveRibbon, addToBag } = useCart();
+  const { playRustle, playClick } = useSound();
+  const { locale } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
 
@@ -105,6 +109,7 @@ export function OccasionsSection({ onSelectOccasion }: OccasionsSectionProps) {
             <div
               key={occ.number}
               onClick={() => {
+                playClick();
                 addToBag();
                 onSelectOccasion?.(occ.title);
               }}
@@ -177,7 +182,10 @@ export function OccasionsSection({ onSelectOccasion }: OccasionsSectionProps) {
               <button
                 key={ribbon.name}
                 type="button"
-                onClick={() => setActiveRibbon(ribbon)}
+                onClick={() => {
+                  playRustle();
+                  setActiveRibbon(ribbon);
+                }}
                 className={`px-4 py-2.5 rounded-full text-xs font-sans font-medium flex items-center gap-2.5 transition-all duration-300 border cursor-pointer ${
                   activeRibbon.name === ribbon.name
                     ? "bg-midnight text-porcelain border-midnight shadow-md scale-105"
