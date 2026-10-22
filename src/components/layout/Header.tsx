@@ -47,6 +47,12 @@ export function Header() {
             {t.navFrame}
           </a>
           <a
+            href="#letter"
+            className="hover:text-midnight transition-colors duration-200 text-cobalt/90 font-medium"
+          >
+            {t.navLetter}
+          </a>
+          <a
             href="#occasions"
             className="hover:text-midnight transition-colors duration-200"
           >
@@ -166,6 +172,13 @@ export function Header() {
               className="py-1 hover:text-midnight"
             >
               {t.navFrame}
+            </a>
+            <a
+              href="#letter"
+              onClick={() => setMobileMenuOpen(false)}
+              className="py-1 hover:text-midnight text-cobalt font-medium"
+            >
+              {t.navLetter}
             </a>
             <a
               href="#occasions"

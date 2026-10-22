@@ -4,6 +4,7 @@ import { PublicProductDto } from "@/types/products";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { Header } from "@/components/layout/Header";
 import { HeroSection } from "@/components/product/HeroSection";
+import { LetterRitual } from "@/components/gifting/LetterRitual";
 import { OccasionsSection } from "@/components/gifting/OccasionsSection";
 import { UnboxingSuite } from "@/components/gifting/UnboxingSuite";
 import { RealMoments } from "@/components/trust/RealMoments";
@@ -77,6 +78,9 @@ export default async function HomePage() {
       <main className="w-full pt-[116px] bg-porcelain flex-1">
         {/* Section 1: Cinematic Midnight Hero */}
         <HeroSection product={heroProduct} />
+
+        {/* Signature Storytelling Interaction: A letter for someone you love */}
+        <LetterRitual />
 
         {/* Section 2: Intentional Gifting Occasions */}
         <OccasionsSection />
