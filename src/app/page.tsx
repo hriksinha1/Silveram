@@ -17,6 +17,9 @@ import { Footer } from "@/components/layout/Footer";
 
 async function getFeaturedProducts(): Promise<PublicProductDto[]> {
   try {
+    if (!process.env.MONGODB_URI || !process.env.MONGODB_URI.startsWith("mongodb")) {
+      return [];
+    }
     const productsCol = await getProductsCollection();
     const activeProducts = await productsCol
       .find({ status: "active" })
