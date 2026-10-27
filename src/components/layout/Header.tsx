@@ -1,7 +1,5 @@
-"use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
 import { ShoppingBag, Menu, X, Volume2, VolumeX, Globe } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -29,14 +27,14 @@ export function Header() {
     <div className="w-full bg-porcelain/90 backdrop-blur-md border-b border-silver/30 transition-all">
       <div className="max-w-7xl mx-auto h-20 px-4 sm:px-10 flex items-center justify-between">
         {/* Brand Wordmark */}
-        <Link href="/" className="group flex flex-col">
+        <a href="/" className="group flex flex-col">
           <span className="font-serif text-2xl tracking-[0.25em] text-midnight font-normal uppercase transition-opacity group-hover:opacity-75">
             SILVERAM
           </span>
           <span className="text-[9px] tracking-[0.3em] text-graphite-muted uppercase -mt-0.5 font-sans font-medium">
             {t.tagline}
           </span>
-        </Link>
+        </a>
 
         {/* Minimal Editorial Navigation */}
         <nav className="hidden lg:flex items-center gap-8 text-[12px] tracking-widest uppercase font-sans text-graphite/80 font-medium">

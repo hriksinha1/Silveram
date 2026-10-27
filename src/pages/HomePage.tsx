@@ -1,6 +1,7 @@
-import { getProductsCollection } from "@/server/db/collections";
-import { toPublicProductDto } from "@/server/domain/products/schema";
-import { PublicProductDto } from "@/types/products";
+import { useEffect, useState } from "react";
+import { fetchFeaturedProducts } from "@/lib/appwrite/products";
+import { FALLBACK_PRODUCT } from "@/data/fallbackProduct";
+import type { PublicProductDto } from "@/types/products";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { Header } from "@/components/layout/Header";
 import { HeroSection } from "@/components/product/HeroSection";
@@ -15,59 +16,18 @@ import { FaqSection } from "@/components/trust/FaqSection";
 import { StickyBottomDock } from "@/components/layout/StickyBottomDock";
 import { Footer } from "@/components/layout/Footer";
 
-async function getFeaturedProducts(): Promise<PublicProductDto[]> {
-  try {
-    if (!process.env.MONGODB_URI || !process.env.MONGODB_URI.startsWith("mongodb")) {
-      return [];
-    }
-    const productsCol = await getProductsCollection();
-    const activeProducts = await productsCol
-      .find({ status: "active" })
-      .sort({ featuredRank: 1 })
-      .toArray();
+export function HomePage() {
+  const [heroProduct, setHeroProduct] = useState<PublicProductDto>(FALLBACK_PRODUCT);
 
-    return activeProducts.map((p) => toPublicProductDto(p, "en"));
-  } catch (error) {
-    console.error("Failed to load featured products from database:", error);
-    return [];
-  }
-}
-
-const FALLBACK_PRODUCT: PublicProductDto = {
-  sku: "SIL-FRAME-001",
-  slug: "silver-coated-frame",
-  type: "decorative_frame",
-  title: "The Sacred Keepsake Frame • Lakshmi-Ganesha Edition",
-  shortDescription: "An architectural devotional keepsake frame featuring pure 999 fine silver clad relief of Sri Lakshmi & Sri Ganesha in monolithic optical acrylic.",
-  description: "Crafted with precision geometry, this architectural devotional sanctuary preserves your most sacred blessings and cherished memories.",
-  materialDisclosure: "Verified Composition: Precision engineered structural composite core with verified electroformed 999 fine silver cladding. Anti-tarnish nano-ceramic sealed.",
-  priceRupees: "1200.00",
-  compareAtPriceRupees: null,
-  currency: "INR",
-  images: [
-    {
-      url: "/products/frame-01.webp",
-      alt: "Silveram Sacred Keepsake Frame",
-      width: 933,
-      height: 1400,
-      position: 0,
-    },
-  ],
-  variants: [
-    {
-      key: "default",
-      label: "Standard Tabletop (18.5 × 23.5 cm)",
-      priceRupees: "1200.00",
-      options: { size: "tabletop" },
-      active: true,
-    },
-  ],
-  featuredRank: 1,
-};
-
-export default async function HomePage() {
-  const products = await getFeaturedProducts();
-  const heroProduct = products[0] || FALLBACK_PRODUCT;
+  useEffect(() => {
+    let active = true;
+    fetchFeaturedProducts().then((products) => {
+      if (active && products[0]) setHeroProduct(products[0]);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen">

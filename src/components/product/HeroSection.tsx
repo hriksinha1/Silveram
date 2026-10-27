@@ -1,4 +1,3 @@
-"use client";
 
 import React, { useRef, useState, useEffect } from "react";
 import { ArrowRight, ShieldCheck, Compass, CheckCircle } from "lucide-react";

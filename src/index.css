@@ -3,6 +3,8 @@
 @tailwind utilities;
 
 :root {
+  --font-editorial: "Playfair Display", Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   /* Brand Palette - Midnight Gallery + Gift Ritual */
   --color-midnight: #0C1B36;
   --color-midnight-dark: #060E1D;
@@ -22,9 +24,6 @@
   --color-graphite: #222B3A;
   --color-graphite-muted: #4A5568;
 
-  /* Typography Scale */
-  --font-editorial: var(--font-editorial, "Playfair Display", Georgia, serif);
-  --font-sans: var(--font-sans, "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
 }
 
 @layer base {
@@ -101,4 +100,23 @@
 
 .animate-sacred-glow {
   animation: sacred-glow 3s ease-in-out infinite;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 116px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid #6178FF;
+  outline-offset: 2px;
 }

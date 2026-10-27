@@ -1,4 +1,3 @@
-"use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { InscriptionData, CRAFTED_MESSAGES } from "@/components/product/FrameViewer3D";
@@ -20,6 +19,7 @@ export interface UploadedPhoto {
   previewUrl: string;
   fileName: string;
   fileSize?: string;
+  file?: File;
 }
 
 interface CartContextType {

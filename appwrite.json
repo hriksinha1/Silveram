@@ -1,0 +1,21 @@
+{
+  "projectId": "YOUR_PROJECT_ID",
+  "projectName": "Silveram",
+  "functions": [
+    {
+      "$id": "create-order",
+      "name": "Create Order",
+      "runtime": "node-22",
+      "execute": ["any"],
+      "events": [],
+      "schedule": "",
+      "timeout": 15,
+      "enabled": true,
+      "logging": true,
+      "entrypoint": "src/main.js",
+      "commands": "npm install",
+      "scopes": ["databases.read", "databases.write", "files.read"],
+      "path": "appwrite/functions/create-order"
+    }
+  ]
+}

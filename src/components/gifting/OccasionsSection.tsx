@@ -1,4 +1,3 @@
-"use client";
 
 import React, { useState, useRef } from "react";
 import { ArrowUpRight, Check, Sparkles } from "lucide-react";

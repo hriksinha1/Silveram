@@ -1,34 +1,36 @@
-"use client";
 
 import React, { useState } from "react";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { submitCorporateEnquiry } from "@/lib/appwrite/enquiries";
 
 export function CorporateGiftingSection() {
   const [email, setEmail] = useState("");
   const [units, setUnits] = useState("50");
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
 
+    setSending(true);
+    setError("");
     try {
-      await fetch("/api/v1/corporate-enquiries", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          companyName: "Corporate Inquiry",
-          contactName: "Lead",
-          businessEmail: email,
-          phone: "9999999999",
-          estimatedQuantity: parseInt(units) || 50,
-          message: `Corporate sample request for ${units} units`,
-          locale: "en",
-        }),
+      await submitCorporateEnquiry({
+        companyName: email.split("@")[1] || "Corporate enquiry",
+        contactName: "Sample request",
+        businessEmail: email,
+        estimatedQuantity: parseInt(units, 10) || 50,
+        message: `Corporate sample request for ${units} units`,
+        locale: "en",
       });
       setSubmitted(true);
-    } catch {
-      setSubmitted(true);
+    } catch (err) {
+      console.error(err);
+      setError("We could not send your request. Please try again in a moment.");
+    } finally {
+      setSending(false);
     }
   };
 
@@ -70,12 +72,19 @@ export function CorporateGiftingSection() {
             />
             <button
               type="submit"
-              className="px-6 py-3 rounded-full bg-porcelain text-midnight text-xs font-sans font-semibold tracking-wider uppercase hover:bg-silver transition-all whitespace-nowrap shadow-md inline-flex items-center justify-center gap-2"
+              disabled={sending}
+              className="px-6 py-3 rounded-full bg-porcelain text-midnight text-xs font-sans font-semibold tracking-wider uppercase hover:bg-silver transition-all whitespace-nowrap shadow-md inline-flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <span>Request Sample</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </form>
+        )}
+
+        {error && (
+          <p role="alert" className="text-xs font-sans text-red-300">
+            {error}
+          </p>
         )}
 
         <div className="flex flex-wrap items-center justify-center gap-8 text-[11px] font-sans text-silver/60 pt-4">

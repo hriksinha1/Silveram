@@ -1,4 +1,3 @@
-"use client";
 
 import React, { useState } from "react";
 import { 
@@ -14,6 +13,9 @@ import {
   Gift
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useLanguage } from "@/context/LanguageContext";
+import { placeOrder, uploadOrderPhoto } from "@/lib/appwrite/orders";
+import { FALLBACK_PRODUCT } from "@/data/fallbackProduct";
 
 export function CheckoutModal() {
   const { 
@@ -22,8 +24,10 @@ export function CheckoutModal() {
     activeRibbon, 
     uploadedPhoto, 
     inscription, 
+    photoOption,
     clearBag 
   } = useCart();
+  const { locale } = useLanguage();
 
   const [step, setStep] = useState<"details" | "payment" | "success">("details");
   const [name, setName] = useState("");
@@ -34,25 +38,62 @@ export function CheckoutModal() {
   const [isDirectGift, setIsDirectGift] = useState(false);
   const [giftNote, setGiftNote] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"upi" | "card" | "cod">("upi");
+  const [placing, setPlacing] = useState(false);
+  const [orderError, setOrderError] = useState("");
+  const [orderNumber, setOrderNumber] = useState("");
 
   if (!isCheckoutOpen) return null;
 
   const handleDetailsSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !phone || !address || pincode.length !== 6) {
-      alert("Please fill in all required delivery details.");
+    if (!/^[6-9]d{9}$/.test(phone)) {
+      setOrderError("Please enter a valid 10-digit Indian mobile number.");
       return;
     }
+    if (!/^d{6}$/.test(pincode)) {
+      setOrderError("Please enter a valid 6-digit PIN code.");
+      return;
+    }
+    setOrderError("");
     setStep("payment");
   };
 
-  const handlePaymentComplete = () => {
-    setStep("success");
-    clearBag();
+  const handlePaymentComplete = async () => {
+    setPlacing(true);
+    setOrderError("");
+    try {
+      const photoFileId = uploadedPhoto?.file ? await uploadOrderPhoto(uploadedPhoto.file) : undefined;
+      const order = await placeOrder({
+        locale,
+        productSlug: FALLBACK_PRODUCT.slug,
+        variantKey: "default",
+        quantity: 1,
+        customer: { name: name.trim(), email: email.trim(), phone },
+        shippingAddress: { recipientName: name.trim(), addressLine1: address.trim(), postalCode: pincode, countryCode: "IN" },
+        gift: { isGift: isDirectGift, giftMessage: giftNote.trim() || undefined },
+        personalisation: {
+          recipient: inscription.recipient,
+          message: inscription.message,
+          date: inscription.date,
+          ribbon: activeRibbon.name,
+          photoOption,
+          photoFileId,
+        },
+        paymentMethod,
+      });
+      setOrderNumber(order.orderNumber);
+      setStep("success");
+      clearBag();
+    } catch (err) {
+      setOrderError(err instanceof Error ? err.message : "We could not place your order. Please try again.");
+    } finally {
+      setPlacing(false);
+    }
   };
 
   const resetAndClose = () => {
     setStep("details");
+    setOrderError("");
     closeCheckout();
   };
 
@@ -173,6 +214,12 @@ export function CheckoutModal() {
                   className="w-full px-3.5 py-2.5 rounded-[6px] bg-white border border-silver/60 text-midnight text-xs font-mono focus:outline-none focus:border-midnight"
                 />
               </div>
+
+              {orderError && (
+                <p role="alert" className="text-xs font-sans text-red-700 bg-red-50 border border-red-200 rounded-[6px] px-3 py-2">
+                  {orderError}
+                </p>
+              )}
 
               {/* Direct Gift Checkbox */}
               <div className="p-3 rounded-[8px] bg-white border border-silver/40 space-y-2">
@@ -316,9 +363,15 @@ export function CheckoutModal() {
                     <span className="text-[8px] font-mono text-silver/80 mt-1">SILVERAM MERCHANT</span>
                   </div>
                   <p className="text-[11px] font-sans text-graphite-muted">
-                    Scan using any UPI app or click below to simulate instant payment verification.
+                    Confirm your order and we will send a secure UPI payment link to your WhatsApp and email. Your frame goes into production once payment is received.
                   </p>
                 </div>
+              )}
+
+              {orderError && (
+                <p role="alert" className="text-xs font-sans text-red-700 bg-red-50 border border-red-200 rounded-[6px] px-3 py-2">
+                  {orderError}
+                </p>
               )}
 
               {/* Order Breakdown */}
@@ -330,10 +383,11 @@ export function CheckoutModal() {
               <button
                 type="button"
                 onClick={handlePaymentComplete}
-                className="w-full py-4 rounded-full bg-midnight text-porcelain text-xs font-sans font-semibold tracking-widest uppercase hover:bg-midnight-light transition-all flex items-center justify-center gap-2 shadow-xl cursor-pointer"
+                disabled={placing}
+                className="w-full py-4 disabled:opacity-60 disabled:cursor-not-allowed rounded-full bg-midnight text-porcelain text-xs font-sans font-semibold tracking-widest uppercase hover:bg-midnight-light transition-all flex items-center justify-center gap-2 shadow-xl cursor-pointer"
               >
                 <Lock className="w-3.5 h-3.5 text-silver" />
-                <span>Confirm Order — ₹1,200.00</span>
+                <span>{placing ? "Placing order…" : "Confirm Order — ₹1,200.00"}</span>
               </button>
             </div>
           )}
@@ -347,7 +401,7 @@ export function CheckoutModal() {
 
               <div>
                 <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-emerald-700 font-bold block mb-1">
-                  ORDER PLACED • SLV-2026-9814
+                  ORDER PLACED • {orderNumber}
                 </span>
                 <h3 className="font-serif text-2xl text-midnight font-normal">
                   May this keepsake bring enduring light.

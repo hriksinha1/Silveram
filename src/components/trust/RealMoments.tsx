@@ -1,7 +1,5 @@
-"use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import { MapPin, Sparkles, Compass, Eye, ShieldCheck, Quote } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useSound } from "@/context/SoundContext";
@@ -149,13 +147,12 @@ export function RealMoments() {
           {/* Left Column: High-Fidelity Editorial Lifestyle Photograph */}
           <div className="lg:col-span-7">
             <div className="relative aspect-[4/3] rounded-[16px] overflow-hidden border border-white/15 bg-black/40 shadow-[0_30px_90px_-20px_rgba(0,0,0,0.85)] group">
-              <Image
+              <img
                 src={current.image}
                 alt={locale === "hi" ? current.titleHi : current.titleEn}
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 60vw"
-                className="object-cover transition-transform duration-700 ease-out group-hover:scale-103"
+                decoding="async"
+                fetchPriority="high"
+                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-103"
               />
 
               {/* Architectural Ambient Vignette */}
@@ -233,12 +230,12 @@ export function RealMoments() {
               }`}
             >
               <div className="relative aspect-[16/9] rounded-[6px] overflow-hidden mb-2.5 bg-black/40">
-                <Image
+                <img
                   src={sanctuary.image}
                   alt={sanctuary.city}
-                  fill
-                  sizes="200px"
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
               <div className="flex items-center justify-between">

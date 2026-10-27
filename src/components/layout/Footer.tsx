@@ -1,7 +1,5 @@
-"use client";
 
 import React from "react";
-import Link from "next/link";
 import { Volume2, VolumeX, Sparkles, Globe } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useSound } from "@/context/SoundContext";

@@ -1,4 +1,3 @@
-"use client";
 
 import React, { useState, useRef } from "react";
 import { 
@@ -56,6 +55,7 @@ export function CartDrawer() {
       previewUrl,
       fileName: file.name,
       fileSize,
+      file,
     });
   };
 
